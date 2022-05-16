@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 
 namespace SocketTcpServer  
 {
     class DealCards : Deck
     {
         private Card[] PlayerHand;
-        private Card[] TableCards;
+        public Card[] TableCards;
         private Card[] SortedPlayerHand;
         private Card[] SortedTableCards;
 
@@ -20,12 +22,13 @@ namespace SocketTcpServer
             TableCards = new Card[5];
             SortedTableCards = new Card[5];
         }
+        
         public void Deal()
         {
             SetUpDeck();//Создание колоды карт
             GetHand();//Тасование в руки
             SortCards();//Сортировка для сравнивания
-            DisplayPlayersCard();//Показать карты игрока
+            //DisplayPlayersCard();//Показать карты игрока
             //Motion();//Сделать ход(bet, fold, raise, check, call)
             //DisplayFlope();//Флоп
             ////Сделать ход(bet, fold, raise, check, call)
@@ -106,12 +109,10 @@ namespace SocketTcpServer
                 TableCards[i] = getDeck[i];
             }
             //5 карт игрока
-            for (int i = 5; i < 7; i++)
-            {
-                PlayerHand[i - 5] = getDeck[i];
-            }
-
-
+            //for (int i = 5; i < 7; i++)
+            //{
+            //    PlayerHand[i - 5] = getDeck[i];
+            //}
         }
 
         public void SortCards()//Сортировка карт для удобного сравнивания
@@ -136,6 +137,8 @@ namespace SocketTcpServer
                 index++;
             }
         }
+
+
         public void DisplayFlope()//Отображение флопа
         {
             int x = 0;//Счет карты

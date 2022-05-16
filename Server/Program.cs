@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace SocketTcpServer
 {
-    class Program
+    class Program : DealCards
     {
         static int port = 2115; // порт для приема входящих запросов
         static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194 
@@ -60,7 +60,9 @@ namespace SocketTcpServer
             builder.Clear();
             data = null;
         }
-        static void Main(string[] args)
+
+
+        static void Main()
         {
             Console.Title = "Блэйк Джек";
 
@@ -111,8 +113,12 @@ namespace SocketTcpServer
                     message = "Игрок 2 подключился\n";
                     SendPlayerData(message, Player, PlayerTwo);
 
-                    DealCards DealCard = new();
+                    DealCards DealCard = new DealCards();
                     DealCard.Deal();
+
+                    Console.Clear();//Остановился на ошибке TableDeck, который пустой
+                    SendCardsOfTableForClient(Player);
+                    SendCardsOfTableForClient(PlayerTwo);
                     //Console.ReadLine();
 
                     // получаем сообщение
@@ -125,6 +131,100 @@ namespace SocketTcpServer
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        public static void SendCardsOfTableForClient(Socket Player)
+        {
+            DealCards dealCards = new();
+            for (int i = 0; i < 3; i++)
+            {
+                Player.Send(SendSuitOfTableForClient(dealCards.TableCards[i], Player));
+                Player.Send(SendValueCardOfTableForClient(dealCards.TableCards[i], Player));
+                //Остановился на передаче значения карты
+            }
+        }
+
+        public static byte[] SendValueCardOfTableForClient(Card card, Socket Player)
+        {
+            StringBuilder builder = new StringBuilder();
+            byte[] data = new byte[256]; // буфер для получаемых данных
+
+            string CardValue = " ";
+            switch (card.MyValue)
+            {
+                case Card.VALUE.Ace:
+                    CardValue = "Ace";
+                    break;
+                case Card.VALUE.King:
+                    CardValue = "King";
+                    break;
+                case Card.VALUE.Queen:
+                    CardValue = "Queen";
+                    break;
+                case Card.VALUE.Jack:
+                    CardValue = "Jack";
+                    break;
+                case Card.VALUE.Ten:
+                    CardValue = "Ten";
+                    break;
+                case Card.VALUE.Nine:
+                    CardValue = "Nine";
+                    break;
+                case Card.VALUE.Eight:
+                    CardValue = "Eight";
+                    break;
+                case Card.VALUE.Seven:
+                    CardValue = "Seven";
+                    break;
+                case Card.VALUE.Six:
+                    CardValue = "Six";
+                    break;
+                case Card.VALUE.Five:
+                    CardValue = "Five";
+                    break;
+                case Card.VALUE.Four:
+                    CardValue = "Four";
+                    break;
+                case Card.VALUE.Three:
+                    CardValue = "Three";
+                    break;
+                case Card.VALUE.Two:
+                    CardValue = "Two";
+                    break;
+            }
+
+            data = Encoding.Unicode.GetBytes(CardValue);
+            return data;
+        }
+
+        public static byte[] SendSuitOfTableForClient(Card card, Socket Player)
+        {
+            StringBuilder builder = new StringBuilder();
+            byte[] data = new byte[256]; // буфер для получаемых данных
+
+            string CardSuit = " ";
+            switch (card.MySuit)
+            {
+                //Массив с 1 элементом, значения масти по коду CP437, Вывод
+                case Card.SUIT.Hearts:
+                    CardSuit = "\u2665";// Hearts
+                    break;
+                case Card.SUIT.Diamonds:
+                    CardSuit = "\u2666";// Diamonds
+                    break;
+                case Card.SUIT.Clubs:
+                    CardSuit = "\u2660"; // Spades
+                    break;
+                case Card.SUIT.Spades:
+                    CardSuit = "\u2663"; // Clubs
+                    break;
+            }
+
+            data = Encoding.Unicode.GetBytes(CardSuit);
+            return data;
+            //Player.Send(data);
+            //builder.Clear();
+            //data = null;
         }
     }
 }
