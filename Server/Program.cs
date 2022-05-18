@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace SocketTcpServer
 {
@@ -36,6 +37,21 @@ namespace SocketTcpServer
             data = null;
             bytes = 0;
             builder.Clear();
+        }
+        public static void RecieveApplyData(Socket Player)
+        {
+            StringBuilder builder = new StringBuilder();
+            int bytes = 0; // количество полученных байтов
+            byte[] data = new byte[256]; // буфер для получаемых данных
+
+            do
+            {
+                bytes = Player.Receive(data);
+                builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+            }
+            while (Player.Available > 0);
+
+            Console.WriteLine("Ответ клиента:" + builder.ToString());
         }
         
         public static void SendPlayerData(string message, Socket Player, Socket PlayerTwo)
@@ -104,26 +120,37 @@ namespace SocketTcpServer
 
 
                     Socket Player = listenSocket.Accept();
-
-                    message = "Игрок 1 подключился\n";
-                    SendAlonePlayerData(message, Player);
                     Socket PlayerTwo = listenSocket.Accept();
 
                     SendPlayerData(message, Player, PlayerTwo);
-                    message = "Игрок 2 подключился\n";
+                    message = "Игроки подключились!\n";
                     SendPlayerData(message, Player, PlayerTwo);
+                    message = "Вы 1 игрок\n";
+                    SendAlonePlayerData(message, Player);
+                    message = "Вы 2 игрок\n";
+                    SendAlonePlayerData(message, PlayerTwo);
 
                     DealCards DealCard = new DealCards();
                     DealCard.Deal();
 
                     Console.Clear();//Остановился на ошибке TableDeck, который пустой
-                    SendCardsOfTableForClient(Player);
-                    SendCardsOfTableForClient(PlayerTwo);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        SendSuitOfTableForClient(DealCard.TableCards[i], Player);
+                    }
+                    Console.WriteLine("Данные масти отправлены");
+                    Thread.Sleep(5000);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        SendValueCardOfTableForClient(DealCard.TableCards[i], Player);
+                    }
+                    Console.WriteLine("Данные значения карты отправлены");
+                    //SendCardsOfTableForClient(PlayerTwo);
                     //Console.ReadLine();
 
                     // получаем сообщение
-                    RecievePlayerData(Player);
-                    RecievePlayerData(PlayerTwo);
+                    //RecievePlayerData(Player);
+
 
                 }
             }
@@ -133,18 +160,7 @@ namespace SocketTcpServer
             }
         }
 
-        public static void SendCardsOfTableForClient(Socket Player)
-        {
-            DealCards dealCards = new();
-            for (int i = 0; i < 3; i++)
-            {
-                Player.Send(SendSuitOfTableForClient(dealCards.TableCards[i], Player));
-                Player.Send(SendValueCardOfTableForClient(dealCards.TableCards[i], Player));
-                //Остановился на передаче значения карты
-            }
-        }
-
-        public static byte[] SendValueCardOfTableForClient(Card card, Socket Player)
+        public static void SendValueCardOfTableForClient(Card card, Socket Player)
         {
             StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
@@ -153,51 +169,51 @@ namespace SocketTcpServer
             switch (card.MyValue)
             {
                 case Card.VALUE.Ace:
-                    CardValue = "Ace";
+                    CardValue = "14";
                     break;
                 case Card.VALUE.King:
-                    CardValue = "King";
+                    CardValue = "13";
                     break;
                 case Card.VALUE.Queen:
-                    CardValue = "Queen";
+                    CardValue = "12";
                     break;
                 case Card.VALUE.Jack:
-                    CardValue = "Jack";
+                    CardValue = "11";
                     break;
                 case Card.VALUE.Ten:
-                    CardValue = "Ten";
+                    CardValue = "10";
                     break;
                 case Card.VALUE.Nine:
-                    CardValue = "Nine";
+                    CardValue = "9";
                     break;
                 case Card.VALUE.Eight:
-                    CardValue = "Eight";
+                    CardValue = "8";
                     break;
                 case Card.VALUE.Seven:
-                    CardValue = "Seven";
+                    CardValue = "7";
                     break;
                 case Card.VALUE.Six:
-                    CardValue = "Six";
+                    CardValue = "6";
                     break;
                 case Card.VALUE.Five:
-                    CardValue = "Five";
+                    CardValue = "5";
                     break;
                 case Card.VALUE.Four:
-                    CardValue = "Four";
+                    CardValue = "4";
                     break;
                 case Card.VALUE.Three:
-                    CardValue = "Three";
+                    CardValue = "3";
                     break;
                 case Card.VALUE.Two:
-                    CardValue = "Two";
+                    CardValue = "2";
                     break;
             }
 
             data = Encoding.Unicode.GetBytes(CardValue);
-            return data;
+            Player.Send(data);
         }
 
-        public static byte[] SendSuitOfTableForClient(Card card, Socket Player)
+        public static void SendSuitOfTableForClient(Card card, Socket Player)
         {
             StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
@@ -207,21 +223,24 @@ namespace SocketTcpServer
             {
                 //Массив с 1 элементом, значения масти по коду CP437, Вывод
                 case Card.SUIT.Hearts:
-                    CardSuit = "\u2665";// Hearts
+                    CardSuit = "0";// Hearts
                     break;
                 case Card.SUIT.Diamonds:
-                    CardSuit = "\u2666";// Diamonds
+                    CardSuit = "2";// Diamonds
                     break;
                 case Card.SUIT.Clubs:
-                    CardSuit = "\u2660"; // Spades
+                    CardSuit = "1"; // Spades
                     break;
                 case Card.SUIT.Spades:
-                    CardSuit = "\u2663"; // Clubs
+                    CardSuit = "3"; // Clubs
                     break;
             }
 
             data = Encoding.Unicode.GetBytes(CardSuit);
-            return data;
+            Player.Send(data);
+
+            builder.Clear();
+            data = null;
             //Player.Send(data);
             //builder.Clear();
             //data = null;

@@ -117,20 +117,20 @@ namespace SocketTcpServer
 
         public void SortCards()//Сортировка карт для удобного сравнивания
         {
-            var QueryPlayer = from hand in PlayerHand
-                              orderby hand.MyValue
-                              select hand;
+            //var QueryPlayer = from hand in PlayerHand
+            //                  orderby hand.MyValue
+            //                  select hand;
             var QueryDealer = from hand in TableCards
                               orderby hand.MyValue
                               select hand;
 
             var index = 0;
-            foreach (var element in QueryPlayer.ToList())
-            {
-                SortedPlayerHand[index] = element;
-                index++;
-            }
-            index = 0;
+            //foreach (var element in QueryPlayer.ToList())
+            //{
+            //    SortedPlayerHand[index] = element;
+            //    index++;
+            //}
+            //index = 0;
             foreach (var element in QueryDealer.ToList())
             {
                 SortedTableCards[index] = element;
