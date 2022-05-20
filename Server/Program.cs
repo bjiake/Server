@@ -13,7 +13,7 @@ namespace SocketTcpServer
     {
         static int port = 2115; // порт для приема входящих запросов
         static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194 
-        public static int stage = 1;
+        public static int stage = 2;
         //Порт локальной 127.0.0.1
 
         public static void RecievePlayerData(Socket Player)
@@ -79,52 +79,102 @@ namespace SocketTcpServer
         }
         public static void sleep()
         {
-            Thread.Sleep(2000);
+            Thread.Sleep(500);
         }
         public static void SendCards(Card[] card, Socket Player)
         {
-            for (int i = 0; i < 2; i++)
-            {
-                SendSuitOfTableForClient(card[i], Player);
-            }
-            //Console.WriteLine("Данные масти игроку отправлены");
-            sleep();
+            StringBuilder builder = new StringBuilder();
+            byte[] data = new byte[256]; // буфер для получаемых данных
 
-            for (int i = 0; i < 2; i++)
-            {
-                SendValueCardOfTableForClient(card[i], Player);
-            }
-            //Console.WriteLine("Данные значения карты игроку отправлены");
-            sleep();
+            string Cards = " ";
+            Cards = ConvertSuit(card, Cards);
+            Cards = ConvertValue(card, Cards);
+            Console.WriteLine(Cards);
+            data = Encoding.Unicode.GetBytes(Cards);
+            Player.Send(data);
+
+            Cards = null;
+            data = null;
+            builder.Clear();
+            //sleep();
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    SendSuitOfTableForClient(card[i], Player);
+            //}
+            ////Console.WriteLine("Данные масти игроку отправлены");
+            //sleep();
+
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    SendValueCardOfTableForClient(card[i], Player);
+            //}
+            ////Console.WriteLine("Данные значения карты игроку отправлены");
+
         }
-        public static void SendFlope(Card[] card, Socket Player)
-        {
-            stage++;//2
-            for (int i = 0; i < 3; i++)
-            {
-                SendSuitOfTableForClient(card[i], Player);
-            }
-            //Console.WriteLine("Данные масти флопа отправлены");
-            sleep();
-            for (int i = 0; i < 3; i++)
-            {
-                SendValueCardOfTableForClient(card[i], Player);
-            }
-            //Console.WriteLine("Данные значения карты флопа отправлены");
-            sleep();
-        }
-        public static void SendTurn(Card[] card, Socket Player)
+        public static void SendFlope(Card[] card, Socket Player, Socket PlayerTwo)
         {
             stage++;//3
-            SendSuitOfTableForClient(card[stage], Player);
+            StringBuilder builder = new StringBuilder();
+            byte[] data = new byte[256]; // буфер для получаемых данных
 
-            //Console.WriteLine("Данные масти игроку отправлены");
-            sleep();
+            string Cards = " ";
+            Cards = ConvertSuit(card, Cards);
+            Cards = ConvertValue(card, Cards);
 
-            SendValueCardOfTableForClient(card[stage], Player);
+            Console.WriteLine(Cards);
 
-            //Console.WriteLine("Данные значения карты игроку отправлены");
-            sleep();
+            data = Encoding.Unicode.GetBytes(Cards);
+            Player.Send(data);
+            PlayerTwo.Send(data);
+
+
+            data = null;
+            Cards = null;
+            builder.Clear();
+            //sleep();
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    SendSuitOfTableForClient(card[i], Player);
+            //}
+            ////Console.WriteLine("Данные масти флопа отправлены");
+            //sleep();
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    SendValueCardOfTableForClient(card[i], Player);
+            //}
+            ////Console.WriteLine("Данные значения карты флопа отправлены");
+
+        }
+        public static void SendTurn(Card[] card, Socket Player, Socket PlayerTwo)
+        {
+            //stage 3
+            StringBuilder builder = new StringBuilder();
+            byte[] data = new byte[256]; // буфер для получаемых данных
+
+            string Cards = " ";
+            Cards = ConvertSuit(card, Cards);
+            Cards = ConvertValue(card, Cards);
+
+            Console.WriteLine(Cards);
+
+            data = Encoding.Unicode.GetBytes(Cards);
+            Player.Send(data);
+            PlayerTwo.Send(data);
+
+
+            data = null;
+            Cards = null;
+            builder.Clear();
+            //stage++;//3
+            //SendSuitOfTableForClient(card[stage], Player);
+
+            ////Console.WriteLine("Данные масти игроку отправлены");
+            //sleep();
+
+            //SendValueCardOfTableForClient(card[stage], Player);
+
+            ////Console.WriteLine("Данные значения карты игроку отправлены");
+            //sleep();
         }
 
         public static void SendRiver(Card[] card, Socket Player)
@@ -178,33 +228,39 @@ namespace SocketTcpServer
                     Socket Player = listenSocket.Accept();
                     Socket PlayerTwo = listenSocket.Accept();
 
-                    SendPlayerData(message, Player, PlayerTwo);
-                    message = "Игроки подключились!\n";
-                    SendPlayerData(message, Player, PlayerTwo);
-                    message = "Вы 1 игрок\n";
-                    SendAlonePlayerData(message, Player);
-                    message = "Вы 2 игрок\n";
-                    SendAlonePlayerData(message, PlayerTwo);
+                    //SendPlayerData(message, Player, PlayerTwo);
+                    //message = "Игроки подключились!\n";
+                    //SendPlayerData(message, Player, PlayerTwo);
+                    //message = "Вы 1 игрок\n";
+                    //SendAlonePlayerData(message, Player);
+                    //message = "Вы 2 игрок\n";
+                    //SendAlonePlayerData(message, PlayerTwo);
 
                     DealCards DealCard = new DealCards();
                     DealCard.Deal();
 
-                    
-                    SendCards(DealCard.PlayerHand, Player);
-                    SendCards(DealCard.PlayerHand, PlayerTwo);
                     DealCard.DisplayPlayersCard();
-
-                    SendFlope(DealCard.TableCards, Player);
-                    SendFlope(DealCard.TableCards, PlayerTwo);
+                    SendCards(DealCard.PlayerHand, Player);
+                    //sleep();
+                    SendCards(DealCard.PlayerHand, PlayerTwo);
+                    //sleep();
                     DealCard.DisplayFlope();
+                    //SendFlope(DealCard.TableCards, PlayerTwo);
+                    SendFlope(DealCard.TableCards, Player, PlayerTwo);
+                    //SendTurn(DealCard.TableCards, Player, PlayerTwo);
+                    //sleep();
+                    
 
-                    SendTurn(DealCard.TableCards, Player);
-                    SendFlope(DealCard.TableCards, PlayerTwo);
-                    DealCard.DisplayTern();
+                    //DealCard.DisplayTern();
+                    //SendTurn(DealCard.TableCards, Player);
+                    //sleep();
+                    //SendFlope(DealCard.TableCards, PlayerTwo);
 
-                    SendRiver(DealCard.TableCards, Player);
-                    SendFlope(DealCard.TableCards, PlayerTwo);
-                    DealCard.DisplayRiver();
+                    //DealCard.DisplayRiver();
+                    //SendRiver(DealCard.TableCards, Player);
+                    //sleep();
+                    //SendFlope(DealCard.TableCards, PlayerTwo);
+
 
                     // получаем сообщение
                     //RecievePlayerData(Player);
@@ -216,6 +272,85 @@ namespace SocketTcpServer
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+
+
+        public static string ConvertSuit(Card[] card, string Cards)
+        {
+
+            for (int i = 0; i < stage; i++)
+            {//
+                switch (card[i].MySuit)
+                {
+                    //Массив с 1 элементом, значения масти по коду CP437, Вывод
+                    case Card.SUIT.Hearts:
+                        Cards = Cards + "0";// Hearts
+                        break;
+
+                    case Card.SUIT.Clubs:
+                        Cards = Cards + "1"; // Spades
+                        break;
+
+                    case Card.SUIT.Diamonds:
+                        Cards = Cards + "2";// Diamonds
+                        break;
+
+                    case Card.SUIT.Spades:
+                        Cards = Cards + "3"; // Clubs
+                        break;
+                }
+            }
+            return Cards;
+        }
+        public static string ConvertValue(Card[] card, string Cards)
+        {
+            for(int i = 0; i < stage; i++)
+            {
+                switch (card[i].MyValue)
+                {
+                    case Card.VALUE.Ace:
+                        Cards = Cards + "24";
+                        break;
+                    case Card.VALUE.King:
+                        Cards = Cards + "23";
+                        break;
+                    case Card.VALUE.Queen:
+                        Cards = Cards + "22";
+                        break;
+                    case Card.VALUE.Jack:
+                        Cards = Cards + "21";
+                        break;
+                    case Card.VALUE.Ten:
+                        Cards = Cards + "20";
+                        break;
+                    case Card.VALUE.Nine:
+                        Cards = Cards + "19";
+                        break;
+                    case Card.VALUE.Eight:
+                        Cards = Cards + "18";
+                        break;
+                    case Card.VALUE.Seven:
+                        Cards = Cards + "17";
+                        break;
+                    case Card.VALUE.Six:
+                        Cards = Cards + "16";
+                        break;
+                    case Card.VALUE.Five:
+                        Cards = Cards + "15";
+                        break;
+                    case Card.VALUE.Four:
+                        Cards = Cards + "14";
+                        break;
+                    case Card.VALUE.Three:
+                        Cards = Cards + "13";
+                        break;
+                    case Card.VALUE.Two:
+                        Cards = Cards + "12";
+                        break;
+                }
+            }
+            return Cards;
         }
 
         public static void SendValueCardOfTableForClient(Card card, Socket Player)
