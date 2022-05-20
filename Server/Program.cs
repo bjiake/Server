@@ -13,6 +13,7 @@ namespace SocketTcpServer
     {
         static int port = 2115; // порт для приема входящих запросов
         static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194 
+        public static int stage = 1;
         //Порт локальной 127.0.0.1
 
         public static void RecievePlayerData(Socket Player)
@@ -76,11 +77,73 @@ namespace SocketTcpServer
             builder.Clear();
             data = null;
         }
+        public static void sleep()
+        {
+            Thread.Sleep(2000);
+        }
+        public static void SendCards(Card[] card, Socket Player)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                SendSuitOfTableForClient(card[i], Player);
+            }
+            //Console.WriteLine("Данные масти игроку отправлены");
+            sleep();
 
+            for (int i = 0; i < 2; i++)
+            {
+                SendValueCardOfTableForClient(card[i], Player);
+            }
+            //Console.WriteLine("Данные значения карты игроку отправлены");
+            sleep();
+        }
+        public static void SendFlope(Card[] card, Socket Player)
+        {
+            stage++;//2
+            for (int i = 0; i < 3; i++)
+            {
+                SendSuitOfTableForClient(card[i], Player);
+            }
+            //Console.WriteLine("Данные масти флопа отправлены");
+            sleep();
+            for (int i = 0; i < 3; i++)
+            {
+                SendValueCardOfTableForClient(card[i], Player);
+            }
+            //Console.WriteLine("Данные значения карты флопа отправлены");
+            sleep();
+        }
+        public static void SendTurn(Card[] card, Socket Player)
+        {
+            stage++;//3
+            SendSuitOfTableForClient(card[stage], Player);
+
+            //Console.WriteLine("Данные масти игроку отправлены");
+            sleep();
+
+            SendValueCardOfTableForClient(card[stage], Player);
+
+            //Console.WriteLine("Данные значения карты игроку отправлены");
+            sleep();
+        }
+
+        public static void SendRiver(Card[] card, Socket Player)
+        {
+            stage++;//4
+            SendSuitOfTableForClient(card[stage], Player);
+
+            //Console.WriteLine("Данные масти игроку отправлены");
+            sleep();
+
+            SendValueCardOfTableForClient(card[stage], Player);
+
+            //Console.WriteLine("Данные значения карты игроку отправлены");
+            sleep();
+        }
 
         static void Main()
         {
-            Console.Title = "Блэйк Джек";
+            Console.Title = "Блэйк Джек сервер";
 
             ConsoleColor[] colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
             Console.BackgroundColor = ConsoleColor.DarkGreen;
@@ -90,13 +153,6 @@ namespace SocketTcpServer
             Console.WindowWidth = Console.BufferWidth;
             Console.WindowHeight = 40;
             Console.BufferHeight = Console.WindowHeight;
-
-            
-
-            
-
-
-
 
             // получаем адреса для запуска сокета
             var IpPoint = new IPEndPoint(IPAddress.Parse(HostName), port);
@@ -133,20 +189,22 @@ namespace SocketTcpServer
                     DealCards DealCard = new DealCards();
                     DealCard.Deal();
 
-                    Console.Clear();//Остановился на ошибке TableDeck, который пустой
-                    for (int i = 0; i < 3; i++)
-                    {
-                        SendSuitOfTableForClient(DealCard.TableCards[i], Player);
-                    }
-                    Console.WriteLine("Данные масти отправлены");
-                    Thread.Sleep(5000);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        SendValueCardOfTableForClient(DealCard.TableCards[i], Player);
-                    }
-                    Console.WriteLine("Данные значения карты отправлены");
-                    //SendCardsOfTableForClient(PlayerTwo);
-                    //Console.ReadLine();
+                    
+                    SendCards(DealCard.PlayerHand, Player);
+                    SendCards(DealCard.PlayerHand, PlayerTwo);
+                    DealCard.DisplayPlayersCard();
+
+                    SendFlope(DealCard.TableCards, Player);
+                    SendFlope(DealCard.TableCards, PlayerTwo);
+                    DealCard.DisplayFlope();
+
+                    SendTurn(DealCard.TableCards, Player);
+                    SendFlope(DealCard.TableCards, PlayerTwo);
+                    DealCard.DisplayTern();
+
+                    SendRiver(DealCard.TableCards, Player);
+                    SendFlope(DealCard.TableCards, PlayerTwo);
+                    DealCard.DisplayRiver();
 
                     // получаем сообщение
                     //RecievePlayerData(Player);
@@ -169,43 +227,43 @@ namespace SocketTcpServer
             switch (card.MyValue)
             {
                 case Card.VALUE.Ace:
-                    CardValue = "14";
+                    CardValue = "24";
                     break;
                 case Card.VALUE.King:
-                    CardValue = "13";
+                    CardValue = "23";
                     break;
                 case Card.VALUE.Queen:
-                    CardValue = "12";
+                    CardValue = "22";
                     break;
                 case Card.VALUE.Jack:
-                    CardValue = "11";
+                    CardValue = "21";
                     break;
                 case Card.VALUE.Ten:
-                    CardValue = "10";
+                    CardValue = "20";
                     break;
                 case Card.VALUE.Nine:
-                    CardValue = "9";
+                    CardValue = "19";
                     break;
                 case Card.VALUE.Eight:
-                    CardValue = "8";
+                    CardValue = "18";
                     break;
                 case Card.VALUE.Seven:
-                    CardValue = "7";
+                    CardValue = "17";
                     break;
                 case Card.VALUE.Six:
-                    CardValue = "6";
+                    CardValue = "16";
                     break;
                 case Card.VALUE.Five:
-                    CardValue = "5";
+                    CardValue = "15";
                     break;
                 case Card.VALUE.Four:
-                    CardValue = "4";
+                    CardValue = "14";
                     break;
                 case Card.VALUE.Three:
-                    CardValue = "3";
+                    CardValue = "13";
                     break;
                 case Card.VALUE.Two:
-                    CardValue = "2";
+                    CardValue = "12";
                     break;
             }
 

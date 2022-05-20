@@ -10,8 +10,10 @@ namespace SocketTcpServer
 {
     class DealCards : Deck
     {
-        private Card[] PlayerHand;
+        public Card[] PlayerHand;
+        public Card[] PlayerTwoHand;
         public Card[] TableCards;
+        private Card[] SotredPlayerTwoHand;
         private Card[] SortedPlayerHand;
         private Card[] SortedTableCards;
 
@@ -108,11 +110,11 @@ namespace SocketTcpServer
             {
                 TableCards[i] = getDeck[i];
             }
-            //5 карт игрока
-            //for (int i = 5; i < 7; i++)
-            //{
-            //    PlayerHand[i - 5] = getDeck[i];
-            //}
+            //5 карт игрока1
+            for (int i = 5; i < 7; i++)
+            {
+                PlayerHand[i - 5] = getDeck[i];
+            }
         }
 
         public void SortCards()//Сортировка карт для удобного сравнивания
@@ -183,7 +185,6 @@ namespace SocketTcpServer
 
         public void DisplayPlayersCard()
         {
-
             //Отображение карт игрока
             int y = 14;//Перемещение в место для карт игрока
             int x = 0;
@@ -195,7 +196,7 @@ namespace SocketTcpServer
             for (int i = 5; i < 7; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(SortedPlayerHand[i - 5], x, y);
+                DrawCards.DrawCardSuitValue(PlayerHand[i - 5], x, y);
                 x++;
             }
         }
