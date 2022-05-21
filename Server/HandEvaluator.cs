@@ -15,7 +15,7 @@ namespace SocketTcpServer
         Straight,
         Flush,
         FullHouse,
-        FourKind
+        FourOfKind
     }
     public struct HandValue
     {
@@ -104,7 +104,6 @@ namespace SocketTcpServer
                 return true;
             }
             else if (cards[1].MyValue == cards[2].MyValue && cards[1].MyValue == cards[3].MyValue && cards[1].MyValue == cards[4].MyValue)
-
             {
                 handValue.Total = (int)cards[1].MyValue * 4;
                 handValue.HighCard = (int)cards[0].MyValue;
