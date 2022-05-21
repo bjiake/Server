@@ -48,8 +48,8 @@ namespace SocketTcpServer
         {
             //create player's computer's evaluation objects (passing SORTED hand to constructor)
 
-            HandEvaluator playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards);
-            HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards);
+            HandEvaluator playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards, sortedDealerCards, true);
+            HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards, sortedDealerCards, false);
 
             //get the player;s and computer's hand
             Hand playerHand = playerHandEvaluator.EvaluateHand();
