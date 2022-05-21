@@ -16,7 +16,7 @@ namespace SocketTcpServer
         public static int stage = 2;//stage 2 Карты игроков, stage 3 Карты флопа и терна, stage 4 ривер
         //Порт локальной 127.0.0.1
 
-        public static void RecievePlayerData(Socket Player)//Позже нужный мусор забей хуй
+        public static void RecievePlayerData(Socket player)//Позже нужный мусор забей хуй
         {
             string message = "Ждём игроков";
             StringBuilder builder = new StringBuilder();
@@ -24,10 +24,10 @@ namespace SocketTcpServer
             byte[] data = new byte[256]; // буфер для получаемых данных
             do
             {
-                bytes = Player.Receive(data);
+                bytes = player.Receive(data);
                 builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
             }
-            while (Player.Available > 0);
+            while (player.Available > 0);
 
 
             Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + builder.ToString());
@@ -35,31 +35,31 @@ namespace SocketTcpServer
             // отправляем ответ
             message = "ваше сообщение доставлено";
             data = Encoding.Unicode.GetBytes(message);
-            Player.Send(data);
+            player.Send(data);
             data = null;
             bytes = 0;
             builder.Clear();
         }
         
-        public static void SendPlayerData(string message, Socket Player, Socket PlayerTwo)//Позже нужный мусор забей хуй
+        public static void SendPlayerData(string message, Socket player, Socket playerTwo)//Позже нужный мусор забей хуй
         {
             StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
 
             data = Encoding.Unicode.GetBytes(message);
-            Player.Send(data);
-            PlayerTwo.Send(data);
+            player.Send(data);
+            playerTwo.Send(data);
             builder.Clear();
             data = null;
         }
 
-        public static void SendAlonePlayerData(string message, Socket Player)//Позже нужный мусор забей хуй
+        public static void SendAlonePlayerData(string message, Socket player)//Позже нужный мусор забей хуй
         {
             StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
 
             data = Encoding.Unicode.GetBytes(message);
-            Player.Send(data);
+            player.Send(data);
             builder.Clear();
             data = null;
         }
@@ -67,7 +67,7 @@ namespace SocketTcpServer
         {
             Thread.Sleep(500);
         }
-        public static void SendCards(Card[] card, Socket Player)//Отправка карт игрока
+        public static void SendCards(Card[] card, Socket player)//Отправка карт игрока
         {
             byte[] data = new byte[256]; // буфер для получаемых данных
 
@@ -77,12 +77,12 @@ namespace SocketTcpServer
             for (int i = 0; i < 2; i++) { Cards = ConvertValue(card[i], Cards); }//Конвертирование значений карт в Cards
 
             data = Encoding.Unicode.GetBytes(Cards);//Конвертирование Cards для отправки данных
-            Player.Send(data);//Отправка данных игроку
+            player.Send(data);//Отправка данных игроку
             //Очистка
             Cards = null;
             data = null;
         }
-        public static void SendFlope(Card[] card, Socket Player, Socket PlayerTwo)//Отправка флопа
+        public static void SendFlope(Card[] card, Socket player, Socket playerTwo)//Отправка флопа
         {
             stage++;//3 стадия игры
             byte[] data = new byte[256]; // буфер для получаемых данных
@@ -100,13 +100,13 @@ namespace SocketTcpServer
             }
 
             data = Encoding.Unicode.GetBytes(Cards);//Конвертирование Cards для отправки данных
-            Player.Send(data);//Отправка данных игроку
-            PlayerTwo.Send(data);//Отправка данных второму игроку
+            player.Send(data);//Отправка данных игроку
+            playerTwo.Send(data);//Отправка данных второму игроку
             //Очистка
             data = null;
             Cards = null;
         }
-        public static void SendTurn(Card card, Socket Player, Socket PlayerTwo)
+        public static void SendTurn(Card card, Socket player, Socket playerTwo)
         {
             //stage 3
             //StringBuilder builder = new StringBuilder();
@@ -117,8 +117,8 @@ namespace SocketTcpServer
             Cards = ConvertValue(card, Cards);
 
             data = Encoding.Unicode.GetBytes(Cards);
-            Player.Send(data);
-            PlayerTwo.Send(data);
+            player.Send(data);
+            playerTwo.Send(data);
 
             data = null;
             Cards = null;
@@ -126,7 +126,7 @@ namespace SocketTcpServer
             stage++;//4
         }
 
-        public static void SendRiver(Card card, Socket Player, Socket PlayerTwo)
+        public static void SendRiver(Card card, Socket player, Socket playerTwo)
         {
             byte[] data = new byte[256]; // буфер для получаемых данных
 
@@ -135,8 +135,8 @@ namespace SocketTcpServer
             Cards = ConvertValue(card, Cards);
 
             data = Encoding.Unicode.GetBytes(Cards);
-            Player.Send(data);
-            PlayerTwo.Send(data);
+            player.Send(data);
+            playerTwo.Send(data);
 
             data = null;
             Cards = null;
@@ -173,19 +173,16 @@ namespace SocketTcpServer
 
                 while (true)
                 {
-                    string message = "Ждём игроков\n";
+                    Socket player = listenSocket.Accept();
+                    Socket playerTwo = listenSocket.Accept();
 
-
-                    Socket Player = listenSocket.Accept();
-                    Socket PlayerTwo = listenSocket.Accept();
-
-                    //SendPlayerData(message, Player, PlayerTwo);
+                    //SendPlayerData(message, player, playerTwo);
                     //message = "Игроки подключились!\n";
-                    //SendPlayerData(message, Player, PlayerTwo);
+                    //SendPlayerData(message, player, playerTwo);
                     //message = "Вы 1 игрок\n";
-                    //SendAlonePlayerData(message, Player);
+                    //SendAlonePlayerData(message, player);
                     //message = "Вы 2 игрок\n";
-                    //SendAlonePlayerData(message, PlayerTwo);
+                    //SendAlonePlayerData(message, playerTwo);
 
                     DealCards DealCard = new DealCards();
                     DealCard.Deal();
@@ -193,21 +190,21 @@ namespace SocketTcpServer
                     DealCard.DisplayPlayerCard();
                     DealCard.DisplayPlayerTwoCard();
                     //stage 2
-                    SendCards(DealCard.PlayerHand, Player);
-                    SendCards(DealCard.PlayerTwoHand, PlayerTwo);
+                    SendCards(DealCard.playerHand, player);
+                    SendCards(DealCard.playerTwoHand, playerTwo);
 
                     //stage 3
                     DealCard.DisplayFlope();
-                    SendFlope(DealCard.TableCards, Player, PlayerTwo);
+                    SendFlope(DealCard.deckCards, player, playerTwo);
                     sleep();
 
                     //stage 3
                     DealCard.DisplayTurn();
-                    SendTurn(DealCard.TableCards[stage], Player, PlayerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
+                    SendTurn(DealCard.deckCards[stage], player, playerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
                     sleep();
                     //stage 4
                     DealCard.DisplayRiver();
-                    SendRiver(DealCard.TableCards[stage], Player, PlayerTwo);
+                    SendRiver(DealCard.deckCards[stage], player, playerTwo);
                     sleep();
                     Console.SetCursorPosition(1, 28);
                     DealCard.EvaluateHands();

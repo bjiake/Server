@@ -8,12 +8,12 @@ namespace SocketTcpServer
 {
     class Deck : Card
     {
-        const int NumOfCards = 52;//Номер всех карт
+        const int numOfCards = 52;//Номер всех карт
         private Card[] deck;//массив всех игральных карт
 
         public Deck()
         {
-            deck = new Card[NumOfCards];
+            deck = new Card[numOfCards];
         }
         public Card[] getDeck { get { return deck; } }
 
@@ -38,7 +38,7 @@ namespace SocketTcpServer
 
             for (int ShuffleTimes = 0; ShuffleTimes < 2000; ++ShuffleTimes)
             {
-                for (int i = 0; i < NumOfCards; ++i)
+                for (int i = 0; i < numOfCards; ++i)
                 {
                     int SecondCardIndex = rand.Next(13);
                     temp = deck[i];

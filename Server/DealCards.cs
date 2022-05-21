@@ -10,23 +10,23 @@ namespace SocketTcpServer
 {
     class DealCards : Deck
     {
-        public Card[] PlayerHand;
-        public Card[] PlayerTwoHand;
-        public Card[] TableCards;
+        public Card[] playerHand;
+        public Card[] playerTwoHand;
+        public Card[] deckCards;
 
-        private Card[] SortedPlayerTwoHand;
-        private Card[] SortedPlayerHand;
-        private Card[] SortedTableCards;
+        private Card[] sortedPlayerTwoHand;
+        private Card[] sortedPlayerHand;
+        private Card[] sortedTableCards;
 
         public DealCards()
         {
-            PlayerHand = new Card[2];
-            PlayerTwoHand = new Card[2];
-            TableCards = new Card[5];
+            playerHand = new Card[2];
+            playerTwoHand = new Card[2];
+            deckCards = new Card[5];
 
-            SortedPlayerHand = new Card[2];
-            SortedPlayerTwoHand = new Card[2];
-            SortedTableCards = new Card[5];
+            sortedPlayerHand = new Card[2];
+            sortedPlayerTwoHand = new Card[2];
+            sortedTableCards = new Card[5];
         }
         
         public void Deal()
@@ -45,12 +45,11 @@ namespace SocketTcpServer
             ////EvalueateHands();//Подсчет очков
         }
         public void EvaluateHands()
-
         {
             //create player's computer's evaluation objects (passing SORTED hand to constructor)
 
-            HandEvaluator playerHandEvaluator = new HandEvaluator(SortedPlayerHand);
-            HandEvaluator playerTwoHandEvaluator = new HandEvaluator(SortedPlayerTwoHand);
+            HandEvaluator playerHandEvaluator = new HandEvaluator(sortedPlayerHand);
+            HandEvaluator playerTwoHandEvaluator = new HandEvaluator(sortedPlayerTwoHand);
 
             //get the player;s and computer's hand
             Hand playerHand = playerHandEvaluator.EvaluateHand();
@@ -66,7 +65,6 @@ namespace SocketTcpServer
             else if (playerHand < playerTwoHand) { Console.WriteLine("Player №2 WINS!"); }
             else //if the hands are the same, evaluate the values
             {
-
                 //first evaluate who has higher value of poker hand
                 if (playerHandEvaluator.HandValues.Total > playerTwoHandEvaluator.HandValues.Total) { Console.WriteLine("Player №1 WINS!"); }
                 else if (playerHandEvaluator.HandValues.Total < playerTwoHandEvaluator.HandValues.Total) { Console.WriteLine("Player №2 WINS!"); }
@@ -79,7 +77,7 @@ namespace SocketTcpServer
             }
         }
 
-            public void Fold()
+        public void Fold()
         {
 
         }
@@ -144,34 +142,34 @@ namespace SocketTcpServer
 
         public void SortCards()//Сортировка карт для удобного сравнивания
         {
-            var QueryPlayer = from hand in PlayerHand
+            var QueryPlayer = from hand in playerHand
                               orderby hand.MyValue
                               select hand;
-            var QueryPlayerTwo = from hand in PlayerTwoHand
+            var QueryPlayerTwo = from hand in playerTwoHand
                               orderby hand.MyValue
                               select hand;
-            var QueryDealer = from hand in TableCards
+            var QueryDealer = from hand in deckCards
                               orderby hand.MyValue
                               select hand;
 
             var index = 0;
             foreach (var element in QueryPlayer.ToList())
             {
-                SortedPlayerHand[index] = element;
+                sortedPlayerHand[index] = element;
                 index++;
             }
 
             index = 0;
             foreach (var element in QueryPlayerTwo.ToList())
             {
-                SortedPlayerTwoHand[index] = element;
+                sortedPlayerTwoHand[index] = element;
                 index++;
             }
 
             index = 0;
             foreach (var element in QueryDealer.ToList())
             {
-                SortedTableCards[index] = element;
+                sortedTableCards[index] = element;
                 index++;
             }
         }
@@ -180,17 +178,17 @@ namespace SocketTcpServer
             //5 карт дилера
             for (int i = 0; i < 5; i++)
             {
-                TableCards[i] = getDeck[i];
+                deckCards[i] = getDeck[i];
             }
             //2 карты 1 игроку
             for (int i = 5; i < 7; i++)
             {
-                PlayerHand[i - 5] = getDeck[i];
+                playerHand[i - 5] = getDeck[i];
             }
             //
             for (int i = 7; i < 9; i++)
             {
-                PlayerTwoHand[i - 7] = getDeck[i];
+                playerTwoHand[i - 7] = getDeck[i];
             }
         }
 
@@ -208,7 +206,7 @@ namespace SocketTcpServer
             for (int i = 5; i < 7; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(PlayerHand[i - 5], x, y);
+                DrawCards.DrawCardSuitValue(playerHand[i - 5], x, y);
                 x++;
             }
         }
@@ -226,7 +224,7 @@ namespace SocketTcpServer
             for (int i = 7; i < 9; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(PlayerTwoHand[i - 7], x, y);
+                DrawCards.DrawCardSuitValue(playerTwoHand[i - 7], x, y);
                 x++;
             }
         }
@@ -247,7 +245,7 @@ namespace SocketTcpServer
             for (int i = 0; i < 3; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(TableCards[i], x, y);
+                DrawCards.DrawCardSuitValue(deckCards[i], x, y);
                 x++;
             }
         }
@@ -259,7 +257,7 @@ namespace SocketTcpServer
             Console.SetCursorPosition(x, y);
 
             DrawCards.DrawCardOutLine(x, y);
-            DrawCards.DrawCardSuitValue(TableCards[x], x, y);
+            DrawCards.DrawCardSuitValue(deckCards[x], x, y);
         }
 
         public void DisplayRiver()//Отображение ривера
@@ -270,7 +268,7 @@ namespace SocketTcpServer
             Console.SetCursorPosition(x, y);
 
             DrawCards.DrawCardOutLine(x, y);
-            DrawCards.DrawCardSuitValue(TableCards[x], x, y);
+            DrawCards.DrawCardSuitValue(deckCards[x], x, y);
         }
     }
 
