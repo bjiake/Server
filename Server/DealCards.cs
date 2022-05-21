@@ -44,9 +44,42 @@ namespace SocketTcpServer
             ////Сделать ход(bet, fold, raise, check, call)
             ////EvalueateHands();//Подсчет очков
         }
+        public void EvaluateHands()
 
-        
-        public void Fold()
+        {
+            //create player's computer's evaluation objects (passing SORTED hand to constructor)
+
+            HandEvaluator playerHandEvaluator = new HandEvaluator(SortedPlayerHand);
+            HandEvaluator playerTwoHandEvaluator = new HandEvaluator(SortedPlayerTwoHand);
+
+            //get the player;s and computer's hand
+            Hand playerHand = playerHandEvaluator.EvaluateHand();
+            Hand playerTwoHand = playerTwoHandEvaluator.EvaluateHand();
+
+            //display each hand
+            
+            Console.WriteLine("\nPlayer Hand: " + playerHand);
+            Console.WriteLine("\nPlayer Two Hand: " + playerTwoHand);
+
+            //evaluate hands
+            if (playerHand > playerTwoHand) { Console.WriteLine("Player №1 WINS!"); }
+            else if (playerHand < playerTwoHand) { Console.WriteLine("Player №2 WINS!"); }
+            else //if the hands are the same, evaluate the values
+            {
+
+                //first evaluate who has higher value of poker hand
+                if (playerHandEvaluator.HandValues.Total > playerTwoHandEvaluator.HandValues.Total) { Console.WriteLine("Player №1 WINS!"); }
+                else if (playerHandEvaluator.HandValues.Total < playerTwoHandEvaluator.HandValues.Total) { Console.WriteLine("Player №2 WINS!"); }
+
+                //i# both hanve the same poker hand (for example, both have a pair of queens),
+                //than the player with the next higher card wins L
+                else if (playerHandEvaluator.HandValues.HighCard > playerTwoHandEvaluator.HandValues.HighCard) { Console.WriteLine("Player №1 WINS!"); }
+                else if (playerHandEvaluator.HandValues.HighCard < playerTwoHandEvaluator.HandValues.HighCard) { Console.WriteLine("Player №2 WINS!"); }
+                else { Console.WriteLine("No one wins!"); }
+            }
+        }
+
+            public void Fold()
         {
 
         }
@@ -183,9 +216,10 @@ namespace SocketTcpServer
         {
             //Отображение карт игрока
             int y = 14;//Перемещение в место для карт игрока
-            int x = 4;
+            int x = 3;
             Console.SetCursorPosition(x, y);
             Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.SetCursorPosition(x * 12, y);
             Console.WriteLine("Карты 2 Игрока");
             y = 15;
             Console.SetCursorPosition(x, y);

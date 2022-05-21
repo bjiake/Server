@@ -36,7 +36,7 @@ namespace SocketTcpServer
             Random rand = new Random();
             Card temp;
 
-            for (int ShuffleTimes = 0; ShuffleTimes < 1000; ++ShuffleTimes)
+            for (int ShuffleTimes = 0; ShuffleTimes < 2000; ++ShuffleTimes)
             {
                 for (int i = 0; i < NumOfCards; ++i)
                 {

@@ -39,6 +39,7 @@ namespace SocketTcpServer
             clubSum = 0;
             spadesSum = 0;
             cards = new Card[5];
+            Cards = sortedHand;
             handValue = new HandValue();
         }
 
@@ -157,7 +158,7 @@ namespace SocketTcpServer
         }
         private bool ThreeOfKind()
         {
-            if ((cards[0].MyValue == cards[1].MyValue && cards[0].MyValue == cards[2.MyValue]) ||
+            if ((cards[0].MyValue == cards[1].MyValue && cards[0].MyValue == cards[2].MyValue) ||
             (cards[1].MyValue == cards[2].MyValue && cards[1].MyValue == cards[3].MyValue))
             {
                 handValue.Total = (int)cards[2].MyValue * 3;

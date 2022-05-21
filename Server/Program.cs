@@ -29,6 +29,7 @@ namespace SocketTcpServer
             }
             while (Player.Available > 0);
 
+
             Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + builder.ToString());
 
             // отправляем ответ
@@ -207,6 +208,9 @@ namespace SocketTcpServer
                     //stage 4
                     DealCard.DisplayRiver();
                     SendRiver(DealCard.TableCards[stage], Player, PlayerTwo);
+                    sleep();
+                    Console.SetCursorPosition(1, 28);
+                    DealCard.EvaluateHands();
                 }
             }
             catch (Exception ex)
