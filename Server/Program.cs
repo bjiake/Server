@@ -13,10 +13,10 @@ namespace SocketTcpServer
     {
         static int port = 2115; // порт для приема входящих запросов
         static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194 
-        public static int stage = 2;
+        public static int stage = 2;//stage 2 Карты игроков, stage 3 Карты флопа и терна, stage 4 ривер
         //Порт локальной 127.0.0.1
 
-        public static void RecievePlayerData(Socket Player)
+        public static void RecievePlayerData(Socket Player)//Позже нужный мусор забей хуй
         {
             string message = "Ждём игроков";
             StringBuilder builder = new StringBuilder();
@@ -40,7 +40,7 @@ namespace SocketTcpServer
             builder.Clear();
         }
         
-        public static void SendPlayerData(string message, Socket Player, Socket PlayerTwo)
+        public static void SendPlayerData(string message, Socket Player, Socket PlayerTwo)//Позже нужный мусор забей хуй
         {
             StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
@@ -52,7 +52,7 @@ namespace SocketTcpServer
             data = null;
         }
 
-        public static void SendAlonePlayerData(string message, Socket Player)
+        public static void SendAlonePlayerData(string message, Socket Player)//Позже нужный мусор забей хуй
         {
             StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
@@ -62,58 +62,57 @@ namespace SocketTcpServer
             builder.Clear();
             data = null;
         }
-        public static void sleep()
+        public static void sleep()//Пауза в коде на 0.5с
         {
             Thread.Sleep(500);
         }
-        public static void SendCards(Card[] card, Socket Player)
+        public static void SendCards(Card[] card, Socket Player)//Отправка карт игрока
         {
-            StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
 
-            string Cards = " ";      
-            for(int i = 0; i < 2; i++) { Cards = ConvertSuit(card[i], Cards); }
-            for (int i = 0; i < 2; i++) { Cards = ConvertValue(card[i], Cards); }
-            //Console.WriteLine(Cards);
-            data = Encoding.Unicode.GetBytes(Cards);
-            Player.Send(data);
+            string Cards = " ";//Значения карты в виде 031213, где 0 масть - 1 карты, 3 масть - 2 карты,
+                               //12 значение - 1 карты, 13 значение - 2 карты      
+            for (int i = 0; i < 2; i++) { Cards = ConvertSuit(card[i], Cards); }//Конвертирование масти карты в Cards
+            for (int i = 0; i < 2; i++) { Cards = ConvertValue(card[i], Cards); }//Конвертирование значений карт в Cards
 
+            data = Encoding.Unicode.GetBytes(Cards);//Конвертирование Cards для отправки данных
+            Player.Send(data);//Отправка данных игроку
+            //Очистка
             Cards = null;
             data = null;
-            builder.Clear();
         }
-        public static void SendFlope(Card[] card, Socket Player, Socket PlayerTwo)
+        public static void SendFlope(Card[] card, Socket Player, Socket PlayerTwo)//Отправка флопа
         {
-            stage++;//3
-            StringBuilder builder = new StringBuilder();
+            stage++;//3 стадия игры
             byte[] data = new byte[256]; // буфер для получаемых данных
 
-            string Cards = " ";
-            for (int i = 0; i < 3; i++)
+            string Cards = " ";//Значения карты в виде 210102205
+                               //Где 2 масть - 1 карты, 1 масть - 2 карты, 0 масть - 3 карты,
+                               //10 значение - 1 карты, 22 значение - 2 карты, 05 - значение 3 карты
+            for (int i = 0; i < 3; i++)//Конвертирование масти карты в Cards
             {
                 Cards = ConvertSuit(card[i], Cards);
             }
-            for(int i = 0; i < 3; i ++)
+            for(int i = 0; i < 3; i ++)//Конвертирование значений карт в Cards
             {
                 Cards = ConvertValue(card[i], Cards);
             }
 
-            data = Encoding.Unicode.GetBytes(Cards);
-            Player.Send(data);
-            PlayerTwo.Send(data);
-
+            data = Encoding.Unicode.GetBytes(Cards);//Конвертирование Cards для отправки данных
+            Player.Send(data);//Отправка данных игроку
+            PlayerTwo.Send(data);//Отправка данных второму игроку
+            //Очистка
             data = null;
             Cards = null;
-            builder.Clear();
         }
         public static void SendTurn(Card card, Socket Player, Socket PlayerTwo)
         {
             //stage 3
-            StringBuilder builder = new StringBuilder();
+            //StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
 
             string Cards = null;
-            Cards = ConvertSuit(card, Cards);
+            Cards = ConvertSuit(card, Cards);//Конвертирование масти карты в Cards
             Cards = ConvertValue(card, Cards);
 
             data = Encoding.Unicode.GetBytes(Cards);
@@ -122,17 +121,16 @@ namespace SocketTcpServer
 
             data = null;
             Cards = null;
-            builder.Clear();
+            //builder.Clear();
             stage++;//4
         }
 
         public static void SendRiver(Card card, Socket Player, Socket PlayerTwo)
         {
-            StringBuilder builder = new StringBuilder();
             byte[] data = new byte[256]; // буфер для получаемых данных
 
             string Cards = null;
-            Cards = ConvertSuit(card, Cards);
+            Cards = ConvertSuit(card, Cards);//Конвертирование масти карты в Cards
             Cards = ConvertValue(card, Cards);
 
             data = Encoding.Unicode.GetBytes(Cards);
@@ -141,7 +139,6 @@ namespace SocketTcpServer
 
             data = null;
             Cards = null;
-            builder.Clear();
         }
 
         static void Main()
@@ -149,7 +146,7 @@ namespace SocketTcpServer
             Console.Title = "Блэйк Джек сервер";
 
             ConsoleColor[] colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
-            Console.BackgroundColor = ConsoleColor.DarkGreen;
+            Console.BackgroundColor = ConsoleColor.Gray;
             Console.Clear();
 
             Console.BufferWidth = 120;
@@ -223,9 +220,8 @@ namespace SocketTcpServer
         public static string ConvertSuit(Card card, string Cards)
         {
 
-            switch (card.MySuit)
+            switch (card.MySuit)//Card - это Общие карты в классе Card, card - Это текущие карты(Например карты игрока или стола)
             {
-                //Массив с 1 элементом, значения масти по коду CP437, Вывод
                 case Card.SUIT.Hearts:
                     Cards = Cards + "0";// Hearts
                     break;
@@ -246,8 +242,8 @@ namespace SocketTcpServer
         }
         public static string ConvertValue(Card card, string Cards)
         {
-
-            switch (card.MyValue)
+            //Числа 2х значные для удобства распаковки у клиента
+            switch (card.MyValue)//Card - это Общие карты в классе Card, card - Это текущие карты(Например карты игрока или стола)
             {
                 case Card.VALUE.Ace:
                     Cards = Cards + "24";
@@ -289,7 +285,6 @@ namespace SocketTcpServer
                     Cards = Cards + "12";
                     break;
             }
-
             return Cards;
         }
     }

@@ -13,16 +13,19 @@ namespace SocketTcpServer
         public Card[] PlayerHand;
         public Card[] PlayerTwoHand;
         public Card[] TableCards;
-        private Card[] SotredPlayerTwoHand;
+
+        private Card[] SortedPlayerTwoHand;
         private Card[] SortedPlayerHand;
         private Card[] SortedTableCards;
 
         public DealCards()
         {
             PlayerHand = new Card[2];
-            SortedPlayerHand = new Card[2];
             PlayerTwoHand = new Card[2];
             TableCards = new Card[5];
+
+            SortedPlayerHand = new Card[2];
+            SortedPlayerTwoHand = new Card[2];
             SortedTableCards = new Card[5];
         }
         
@@ -41,6 +44,8 @@ namespace SocketTcpServer
             ////Сделать ход(bet, fold, raise, check, call)
             ////EvalueateHands();//Подсчет очков
         }
+
+        
         public void Fold()
         {
 
@@ -104,6 +109,39 @@ namespace SocketTcpServer
             }
         }
 
+        public void SortCards()//Сортировка карт для удобного сравнивания
+        {
+            var QueryPlayer = from hand in PlayerHand
+                              orderby hand.MyValue
+                              select hand;
+            var QueryPlayerTwo = from hand in PlayerTwoHand
+                              orderby hand.MyValue
+                              select hand;
+            var QueryDealer = from hand in TableCards
+                              orderby hand.MyValue
+                              select hand;
+
+            var index = 0;
+            foreach (var element in QueryPlayer.ToList())
+            {
+                SortedPlayerHand[index] = element;
+                index++;
+            }
+
+            index = 0;
+            foreach (var element in QueryPlayerTwo.ToList())
+            {
+                SortedPlayerTwoHand[index] = element;
+                index++;
+            }
+
+            index = 0;
+            foreach (var element in QueryDealer.ToList())
+            {
+                SortedTableCards[index] = element;
+                index++;
+            }
+        }
         public void GetHand()//Раздача карт
         {
             //5 карт дилера
@@ -123,28 +161,7 @@ namespace SocketTcpServer
             }
         }
 
-        public void SortCards()//Сортировка карт для удобного сравнивания
-        {
-            //var QueryPlayer = from hand in PlayerHand
-            //                  orderby hand.MyValue
-            //                  select hand;
-            var QueryDealer = from hand in TableCards
-                              orderby hand.MyValue
-                              select hand;
-
-            var index = 0;
-            //foreach (var element in QueryPlayer.ToList())
-            //{
-            //    SortedPlayerHand[index] = element;
-            //    index++;
-            //}
-            //index = 0;
-            foreach (var element in QueryDealer.ToList())
-            {
-                SortedTableCards[index] = element;
-                index++;
-            }
-        }
+        
         public void DisplayPlayerCard()
         {
             //Отображение карт игрока
@@ -221,14 +238,6 @@ namespace SocketTcpServer
             DrawCards.DrawCardOutLine(x, y);
             DrawCards.DrawCardSuitValue(TableCards[x], x, y);
         }
-
-        public void EvaluateCards()
-        {
-            int scorePlayer;
-            int scorePlayerTwo;
-
-        }
-        
     }
 
 
