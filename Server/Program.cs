@@ -195,16 +195,16 @@ namespace SocketTcpServer
 
                     //stage 3
                     DealCard.DisplayFlope();
-                    SendFlope(DealCard.deckCards, player, playerTwo);
+                    SendFlope(DealCard.dealerCards, player, playerTwo);
                     sleep();
 
                     //stage 3
                     DealCard.DisplayTurn();
-                    SendTurn(DealCard.deckCards[stage], player, playerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
+                    SendTurn(DealCard.dealerCards[stage], player, playerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
                     sleep();
                     //stage 4
                     DealCard.DisplayRiver();
-                    SendRiver(DealCard.deckCards[stage], player, playerTwo);
+                    SendRiver(DealCard.dealerCards[stage], player, playerTwo);
                     sleep();
                     Console.SetCursorPosition(1, 28);
                     DealCard.EvaluateHands();

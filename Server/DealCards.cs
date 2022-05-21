@@ -12,21 +12,21 @@ namespace SocketTcpServer
     {
         public Card[] playerHand;
         public Card[] playerTwoHand;
-        public Card[] deckCards;
+        public Card[] dealerCards;
 
         private Card[] sortedPlayerTwoHand;
         private Card[] sortedPlayerHand;
-        private Card[] sortedTableCards;
+        private Card[] sortedDealerCards;
 
         public DealCards()
         {
             playerHand = new Card[2];
             playerTwoHand = new Card[2];
-            deckCards = new Card[5];
+            dealerCards = new Card[5];
 
             sortedPlayerHand = new Card[2];
             sortedPlayerTwoHand = new Card[2];
-            sortedTableCards = new Card[5];
+            sortedDealerCards = new Card[5];
         }
         
         public void Deal()
@@ -48,8 +48,8 @@ namespace SocketTcpServer
         {
             //create player's computer's evaluation objects (passing SORTED hand to constructor)
 
-            HandEvaluator playerHandEvaluator = new HandEvaluator(sortedPlayerHand);
-            HandEvaluator playerTwoHandEvaluator = new HandEvaluator(sortedPlayerTwoHand);
+            HandEvaluator playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards);
+            HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards);
 
             //get the player;s and computer's hand
             Hand playerHand = playerHandEvaluator.EvaluateHand();
@@ -148,7 +148,7 @@ namespace SocketTcpServer
             var QueryPlayerTwo = from hand in playerTwoHand
                               orderby hand.MyValue
                               select hand;
-            var QueryDealer = from hand in deckCards
+            var QueryDealer = from hand in dealerCards
                               orderby hand.MyValue
                               select hand;
 
@@ -169,7 +169,7 @@ namespace SocketTcpServer
             index = 0;
             foreach (var element in QueryDealer.ToList())
             {
-                sortedTableCards[index] = element;
+                sortedDealerCards[index] = element;
                 index++;
             }
         }
@@ -178,7 +178,7 @@ namespace SocketTcpServer
             //5 карт дилера
             for (int i = 0; i < 5; i++)
             {
-                deckCards[i] = getDeck[i];
+                dealerCards[i] = getDeck[i];
             }
             //2 карты 1 игроку
             for (int i = 5; i < 7; i++)
@@ -245,7 +245,7 @@ namespace SocketTcpServer
             for (int i = 0; i < 3; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(deckCards[i], x, y);
+                DrawCards.DrawCardSuitValue(dealerCards[i], x, y);
                 x++;
             }
         }
@@ -257,7 +257,7 @@ namespace SocketTcpServer
             Console.SetCursorPosition(x, y);
 
             DrawCards.DrawCardOutLine(x, y);
-            DrawCards.DrawCardSuitValue(deckCards[x], x, y);
+            DrawCards.DrawCardSuitValue(dealerCards[x], x, y);
         }
 
         public void DisplayRiver()//Отображение ривера
@@ -268,7 +268,7 @@ namespace SocketTcpServer
             Console.SetCursorPosition(x, y);
 
             DrawCards.DrawCardOutLine(x, y);
-            DrawCards.DrawCardSuitValue(deckCards[x], x, y);
+            DrawCards.DrawCardSuitValue(dealerCards[x], x, y);
         }
     }
 
