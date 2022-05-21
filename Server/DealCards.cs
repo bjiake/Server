@@ -21,6 +21,7 @@ namespace SocketTcpServer
         {
             PlayerHand = new Card[2];
             SortedPlayerHand = new Card[2];
+            PlayerTwoHand = new Card[2];
             TableCards = new Card[5];
             SortedTableCards = new Card[5];
         }
@@ -110,10 +111,15 @@ namespace SocketTcpServer
             {
                 TableCards[i] = getDeck[i];
             }
-            //5 карт игрока1
+            //2 карты 1 игроку
             for (int i = 5; i < 7; i++)
             {
                 PlayerHand[i - 5] = getDeck[i];
+            }
+            //
+            for (int i = 7; i < 9; i++)
+            {
+                PlayerTwoHand[i - 7] = getDeck[i];
             }
         }
 
@@ -139,7 +145,40 @@ namespace SocketTcpServer
                 index++;
             }
         }
-
+        public void DisplayPlayerCard()
+        {
+            //Отображение карт игрока
+            int y = 14;//Перемещение в место для карт игрока
+            int x = 0;
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine("Карты 1 Игрока");
+            y = 15;
+            Console.SetCursorPosition(x, y);
+            for (int i = 5; i < 7; i++)
+            {
+                DrawCards.DrawCardOutLine(x, y);
+                DrawCards.DrawCardSuitValue(PlayerHand[i - 5], x, y);
+                x++;
+            }
+        }
+        public void DisplayPlayerTwoCard()
+        {
+            //Отображение карт игрока
+            int y = 14;//Перемещение в место для карт игрока
+            int x = 4;
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine("Карты 2 Игрока");
+            y = 15;
+            Console.SetCursorPosition(x, y);
+            for (int i = 7; i < 9; i++)
+            {
+                DrawCards.DrawCardOutLine(x, y);
+                DrawCards.DrawCardSuitValue(PlayerTwoHand[i - 7], x, y);
+                x++;
+            }
+        }
 
         public void DisplayFlope()//Отображение флопа
         {
@@ -161,7 +200,7 @@ namespace SocketTcpServer
                 x++;
             }
         }
-        public void DisplayTern()//Отображение терна
+        public void DisplayTurn()//Отображение терна
         {
             int x = 3;//Счет карты
             int y = 2;//Курсор(вверх вниз)
@@ -183,23 +222,13 @@ namespace SocketTcpServer
             DrawCards.DrawCardSuitValue(TableCards[x], x, y);
         }
 
-        public void DisplayPlayersCard()
+        public void EvaluateCards()
         {
-            //Отображение карт игрока
-            int y = 14;//Перемещение в место для карт игрока
-            int x = 0;
-            Console.SetCursorPosition(x, y);
-            Console.ForegroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine("Карты Игрока");
-            y = 15;
-            Console.SetCursorPosition(x, y);
-            for (int i = 5; i < 7; i++)
-            {
-                DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(PlayerHand[i - 5], x, y);
-                x++;
-            }
+            int scorePlayer;
+            int scorePlayerTwo;
+
         }
+        
     }
 
 
