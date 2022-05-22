@@ -148,6 +148,7 @@ namespace SocketTcpServer
 
             ConsoleColor[] colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
             Console.BackgroundColor = ConsoleColor.Gray;
+            
             Console.Clear();
 
             Console.BufferWidth = 120;
@@ -162,14 +163,18 @@ namespace SocketTcpServer
             var listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             DealCards DealCard = new DealCards();
-            DealCard.Deal();
-            DealCard.DisplayPlayerCard();
-            DealCard.DisplayPlayerTwoCard();
-            DealCard.DisplayFlope();
-            DealCard.DisplayTurn();
-            DealCard.DisplayRiver();
-            Console.SetCursorPosition(1, 28);
-            DealCard.EvaluateHands();//Допилить вывод победителя card[7]
+            do
+            {
+                DealCard.Deal();
+                DealCard.DisplayPlayerCard();
+                DealCard.DisplayPlayerTwoCard();
+                DealCard.DisplayFlope();
+                DealCard.DisplayTurn();
+                DealCard.DisplayRiver();
+                Console.SetCursorPosition(1, 28);
+                DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
+            }
+            while (DealCard.playerTwoHandEvaluate != Hand.Straight || DealCard.playerHandEvaluate != Hand.Straight);
             try
             {
                 // связываем сокет с локальной точкой, по которой будем принимать данные

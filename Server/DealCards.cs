@@ -10,6 +10,9 @@ namespace SocketTcpServer
 {
     class DealCards : Deck
     {
+        public Hand playerHandEvaluate;
+        public Hand playerTwoHandEvaluate;
+
         public Card[] playerHand;
         public Card[] playerTwoHand;
         public Card[] dealerCards;
@@ -66,17 +69,17 @@ namespace SocketTcpServer
             HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards, sortedDeckCardsPlayerTwo);
 
             //get the player;s and computer's hand
-            Hand playerHand = playerHandEvaluator.EvaluateHand();
-            Hand playerTwoHand = playerTwoHandEvaluator.EvaluateHand();
+            playerHandEvaluate = playerHandEvaluator.EvaluateHand();
+            playerTwoHandEvaluate = playerTwoHandEvaluator.EvaluateHand();
 
             //display each hand
 
-            Console.WriteLine("\nPlayer Hand: " + playerHand);
-            Console.WriteLine("\nPlayer Two Hand: " + playerTwoHand);
+            Console.WriteLine("\nPlayer Hand: " + playerHandEvaluate);
+            Console.WriteLine("\nPlayer Two Hand: " + playerTwoHandEvaluate);
 
             //evaluate hands
-            if (playerHand > playerTwoHand) { Console.WriteLine("Player №1 WINS!"); }
-            else if (playerHand < playerTwoHand) { Console.WriteLine("Player №2 WINS!"); }
+            if (playerHandEvaluate > playerTwoHandEvaluate) { Console.WriteLine("Player №1 WINS!"); }
+            else if (playerHandEvaluate < playerTwoHandEvaluate) { Console.WriteLine("Player №2 WINS!"); }
             else //if the hands are the same, evaluate the values
             {
                 //first evaluate who has higher value of poker hand
@@ -203,7 +206,7 @@ namespace SocketTcpServer
                 index++;
             }
             index = 0;
-            foreach (var element in QueryDeckCards.ToList())
+            foreach (var element in QueryDeckCardsPlayerTwo.ToList())
             {
                 sortedDeckCardsPlayerTwo[index] = element;
                 index++;
