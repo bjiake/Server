@@ -11,6 +11,24 @@ namespace SocketTcpServer
 {
     class Program : DealCards
     {
+        static MoneySystem PlayerMoney = new();
+        static MoneySystem PlayerTwoMoney = new();
+        
+        public static int playerMoney = 5000;//Деньги игрока
+        public static int playerTwoMoney = 5000;
+
+        public static int bank;//Банк дилера
+        public static int betPlayer;
+        public static int betPlayerTwo;
+        public static int generalBetPlayer;//Общая ставка игрок 1
+        public static int generalBetPlayerTwo;//Общая ставка игрок 2
+
+        public static int smallBlind;//smallBlind делает первый ход
+        public static int bigBlind;
+
+        public static bool roundContinue = true;//Для проведения раунда
+        public static int round = 1;//Счет раунда, каждые 5 раундов блайнды * 2, каждый 2й раунд smallBlind у 1 игрока
+
         static int port = 2115; // порт для приема входящих запросов
         static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194 
         public static int stage = 2;//stage 2 Карты игроков, stage 3 Карты флопа и терна, stage 4 ривер
@@ -31,7 +49,6 @@ namespace SocketTcpServer
 
 
             Console.WriteLine(DateTime.Now.ToShortTimeString() + ": " + builder.ToString());
-
             // отправляем ответ
             message = "ваше сообщение доставлено";
             data = Encoding.Unicode.GetBytes(message);
@@ -142,6 +159,120 @@ namespace SocketTcpServer
             Cards = null;
         }
 
+        public static void displayInformation()
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            ClearLine(30); ClearLine(31); ClearLine(32); ClearLine(33); ClearLine(34); ClearLine(35); ClearLine(36);
+            Console.SetCursorPosition(0, 30);
+        }
+        public static void CheckFirstTurn()
+        {
+            displayInformation();
+            if (round % 2 == 0)
+            {
+                //Console.WriteLine("Ваш баланс:" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank + "\nБаланс противника:" + playerTwoMoney + "\tТекущая ставка противника:" + generalBetPlayerTwo);
+                Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
+                betPlayer = PlayerMoney.ChoosePlayer(playerMoney, generalBetPlayer, generalBetPlayerTwo, smallBlind, bigBlind);
+                generalBetPlayer += betPlayer;
+                bank += betPlayer;
+
+                //Console.WriteLine("Ваш баланс:" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank + "\nБаланс противника:" + playerTwoMoney + "\tТекущая ставка противника:" + generalBetPlayerTwo);
+                Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
+                betPlayerTwo = PlayerTwoMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
+                generalBetPlayerTwo += betPlayerTwo;
+                
+                bank += betPlayerTwo;
+            }
+            else
+            {
+                Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
+                betPlayerTwo = PlayerTwoMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
+                generalBetPlayerTwo += betPlayerTwo;
+                bank += betPlayer;
+
+                Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
+                betPlayer = PlayerMoney.ChoosePlayer(playerMoney, generalBetPlayer, generalBetPlayerTwo, smallBlind, bigBlind);
+                generalBetPlayer += betPlayer;
+                
+                bank += betPlayerTwo;
+            }
+        }
+
+        public static void getBlinds()
+        {
+            if (round % 2 != 0)
+            {
+                if(playerTwoMoney >= smallBlind)
+                {   
+                    generalBetPlayerTwo += smallBlind;
+                    bank += smallBlind;
+                    playerTwoMoney -= smallBlind;
+                }
+                else
+                {
+                    generalBetPlayerTwo += playerTwoMoney;
+                    bank += playerTwoMoney;
+                    playerTwoMoney = 0;
+                }
+                
+                if(playerMoney >= bigBlind)
+                {
+                    generalBetPlayer += bigBlind;
+                    bank += bigBlind;
+                    playerMoney -= bigBlind;
+                }
+                else
+                {
+                    generalBetPlayer += playerMoney;
+                    bank += playerMoney;
+                    playerMoney = 0;
+                }
+                
+            }
+            else
+            {
+                if (playerMoney >= smallBlind)
+                {
+                    generalBetPlayer += smallBlind;
+                    bank += smallBlind;
+                    playerMoney -= smallBlind;
+                }
+                else
+                {
+                    generalBetPlayer += playerMoney;
+                    bank += playerMoney;
+                    playerMoney = 0;
+                }
+
+                if(playerTwoMoney >= bigBlind)
+                {
+                    generalBetPlayerTwo += bigBlind;
+                    bank += bigBlind;
+                    playerTwoMoney -= bigBlind;
+                }
+                else
+                {
+                    generalBetPlayerTwo += playerTwoMoney;
+                    bank += playerTwoMoney;
+                    playerTwoMoney = 0;
+                }
+            }
+        }
+
+        public static void RaiseBlinds()
+        {
+            if (round % 5 == 0)
+            {
+                smallBlind *= 2;
+                bigBlind *= 2;
+            }
+        }
+
+        public static void ClearLine(int line)
+        {
+            Console.MoveBufferArea(0, line, Console.BufferWidth, 1, Console.BufferWidth, line, ' ', Console.ForegroundColor, Console.BackgroundColor);
+        }
+
         static void Main()
         {
             Console.Title = "Блэйк Джек сервер";
@@ -160,72 +291,77 @@ namespace SocketTcpServer
             var IpPoint = new IPEndPoint(IPAddress.Parse(HostName), port);
 
             // создаем сокет
-            var listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);      
 
             DealCards DealCard = new DealCards();
-            do
-            {
-                DealCard.Deal();
-                Console.SetCursorPosition(1, 28);
-                DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
-            }
-            while (DealCard.playerHandEvaluate != Hand.FlushRoyal && DealCard.playerTwoHandEvaluate != Hand.FlushRoyal);
-            DealCard.DisplayPlayerCard();
-            DealCard.DisplayPlayerTwoCard();
-            DealCard.DisplayFlope();
-            DealCard.DisplayTurn();
-            DealCard.DisplayRiver();
-            Console.SetCursorPosition(1, 28);
-            DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
-
+            
             try
             {
                 // связываем сокет с локальной точкой, по которой будем принимать данные
-                //listenSocket.Bind(IpPoint);
+                listenSocket.Bind(IpPoint);
 
                 // начинаем прослушивание очередь входящих потоков
                 //listenSocket.Listen(5);
 
                 Console.WriteLine("Сервер запущен. Ожидание подключений...");
 
-                while (true)
+                while (true)//Цикл на подключение
                 {
                     //Socket player = listenSocket.Accept();
                     //Socket playerTwo = listenSocket.Accept();
 
-                    //SendPlayerData(message, player, playerTwo);
-                    //message = "Игроки подключились!\n";
-                    //SendPlayerData(message, player, playerTwo);
-                    //message = "Вы 1 игрок\n";
-                    //SendAlonePlayerData(message, player);
-                    //message = "Вы 2 игрок\n";
-                    //SendAlonePlayerData(message, playerTwo);
+                    smallBlind = 25;
+                    bigBlind = smallBlind * 2;
 
-                    //DealCards DealCard = new DealCards();
-                    //DealCard.Deal();
+                    while (playerMoney > 0 && playerTwoMoney > 0)//Цикл саму игру
+                    {
+                        Console.Clear();
+                        DealCard.Deal();
+                        roundContinue = true;
+                        while (roundContinue)//Цикл на раунд
+                        { 
 
-                    //DealCard.DisplayPlayerCard();
-                    //DealCard.DisplayPlayerTwoCard();
-                    ////stage 2
-                    //SendCards(DealCard.playerHand, player);
-                    //SendCards(DealCard.playerTwoHand, playerTwo);
+                            RaiseBlinds();//Поднять блайнды
+                            getBlinds();//Взять блайнды с игроков
 
-                    ////stage 3
-                    //DealCard.DisplayFlope();
-                    //SendFlope(DealCard.dealerCards, player, playerTwo);
-                    //sleep();
+                            
 
-                    ////stage 3
-                    //DealCard.DisplayTurn();
-                    //SendTurn(DealCard.dealerCards[stage], player, playerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
-                    //sleep();
-                    ////stage 4
-                    //DealCard.DisplayRiver();
-                    //SendRiver(DealCard.dealerCards[stage], player, playerTwo);
-                    //sleep();
+                            DealCard.DisplayPlayerCard();
+                            DealCard.DisplayPlayerTwoCard();
+                            //stage 2
+                            //SendCards(DealCard.playerHand, player);
+                            //SendCards(DealCard.playerTwoHand, playerTwo);
+                            CheckFirstTurn();
 
-                    //Console.SetCursorPosition(1, 28);
-                    //DealCard.EvaluateHands();//Допилить вывод победителя card[7]
+                            //stage 3
+                            DealCard.DisplayFlope();
+                            //SendFlope(DealCard.dealerCards, player, playerTwo);
+                            sleep();
+                            CheckFirstTurn();
+
+                            //stage 3
+                            DealCard.DisplayTurn();
+                            //SendTurn(DealCard.dealerCards[stage], player, playerTwo);
+                            sleep();
+                            CheckFirstTurn();
+
+                            //stage 4
+                            DealCard.DisplayRiver();
+                            //SendRiver(DealCard.dealerCards[stage], player, playerTwo);
+                            sleep();
+                            CheckFirstTurn();
+
+                            //stage 5
+                            Console.SetCursorPosition(1, 36);
+                            DealCard.EvaluateHands();//Допилить вывод победителя card[7]
+
+                            generalBetPlayer = 0;
+                            generalBetPlayerTwo = 0;
+                            bank = 0;
+                            ++round;
+                            roundContinue = false;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -307,4 +443,26 @@ namespace SocketTcpServer
             return Cards;
         }
     }
+    //SendPlayerData(message, player, playerTwo);
+    //message = "Игроки подключились!\n";
+    //SendPlayerData(message, player, playerTwo);
+    //message = "Вы 1 игрок\n";
+    //SendAlonePlayerData(message, player);
+    //message = "Вы 2 игрок\n";
+    //SendAlonePlayerData(message, playerTwo);
 }
+//do
+//{
+//    DealCard.Deal();
+//    Console.SetCursorPosition(1, 28);
+//    DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
+//}
+//while (DealCard.playerHandEvaluate != Hand.FlushRoyal && DealCard.playerTwoHandEvaluate != Hand.FlushRoyal);
+//DealCard.Deal();
+//DealCard.DisplayPlayerCard();
+//DealCard.DisplayPlayerTwoCard();
+//DealCard.DisplayFlope();
+//DealCard.DisplayTurn();
+//DealCard.DisplayRiver();
+//Console.SetCursorPosition(1, 28);
+//DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]

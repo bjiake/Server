@@ -109,9 +109,9 @@ namespace SocketTcpServer
 
         public Hand EvaluateHand()
         {
-            GetNumberOfSuit();
-            if (FlushRoyal()) { return Hand.FlushRoyal; }
-            else if(StraightFlush()) { return Hand.StraightFlush; }
+            GetNumberOfSuit();//Работает
+            if (FlushRoyal()) { return Hand.FlushRoyal; }//Работает
+            else if(StraightFlush()) { return Hand.StraightFlush; }//Работает
             else if (FourOfKind()) { return Hand.FourOfKind; } // Работает
             else if (FullHouse()) { return Hand.FullHouse; }//Работает
             else if (Flush()) { return Hand.Flush; }//работает
@@ -120,7 +120,7 @@ namespace SocketTcpServer
             else if (TwoPairs()) { return Hand.TwoPairs; }//Работает
             else if (OnePair()) { return Hand.OnePair; }//Работает
 
-            else { handValue.HighCard = (int)cardsPlayer[1].MyValue; }//Сделать подсчет сильной карты
+            else { handValue.HighCard = (int)cardsPlayer[1].MyValue; }//Работает
             return Hand.HighCard;
         }
 
@@ -434,102 +434,6 @@ namespace SocketTcpServer
                 }
             }
             return false;
-            //3 одинаковые карты
-            //0 - 01, 0 - 12, 0 - 23, 0 - 34
-            //1 - 01, 1 - 12, 1 - 23, 1 - 34
-            //01 - 0, 01 - 1, 01 - 2, 01 - 3, 01 - 4
-            //0 - 01
-            //if (cardsPlayer[0].MyValue == cardsDealer[0].MyValue && cardsPlayer[0].MyValue == cardsDealer[1].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[0].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[0].MyValue;
-            //    return true;
-            //}
-            ////0 - 12
-            //else if (cardsPlayer[0].MyValue == cardsDealer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[2].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[0].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[0].MyValue;
-            //    return true;
-            //}
-            ////0 - 23
-            //else if (cardsPlayer[0].MyValue == cardsDealer[2].MyValue && cardsPlayer[0].MyValue == cardsDealer[3].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[0].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[0].MyValue;
-            //    return true;
-            //}
-            ////0 - 34
-            //else if (cardsPlayer[0].MyValue == cardsDealer[3].MyValue && cardsPlayer[0].MyValue == cardsDealer[4].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[0].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[0].MyValue;
-            //    return true;
-            //}
-            ////1 - 01
-            //else if (cardsPlayer[1].MyValue == cardsDealer[0].MyValue && cardsPlayer[1].MyValue == cardsDealer[1].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////1 - 12
-            //else if (cardsPlayer[1].MyValue == cardsDealer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[2].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////1 - 23
-            //else if (cardsPlayer[1].MyValue == cardsDealer[2].MyValue && cardsPlayer[1].MyValue == cardsDealer[3].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////1 - 34
-            //else if (cardsPlayer[1].MyValue == cardsDealer[3].MyValue && cardsPlayer[1].MyValue == cardsDealer[4].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////01 - 0
-            //else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[0].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////01 - 1
-            //else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[1].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////01 - 2
-            //else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[2].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////01 - 3
-            //else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[3].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            ////01 - 4
-            //else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[4].MyValue)
-            //{
-            //    handValue.Total = (int)cardsDealer[1].MyValue * 3;
-            //    handValue.HighCard = (int)cardsDealer[1].MyValue;
-            //    return true;
-            //}
-            //return false;
         }
 
         private bool TwoPairs()

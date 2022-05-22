@@ -83,19 +83,49 @@ namespace SocketTcpServer
             Console.WriteLine("\nPlayer Two Hand: " + playerTwoHandEvaluate);
 
             //evaluate hands
-            if (playerHandEvaluate > playerTwoHandEvaluate) { Console.WriteLine("Player №1 WINS!"); }
-            else if (playerHandEvaluate < playerTwoHandEvaluate) { Console.WriteLine("Player №2 WINS!"); }
+            if (playerHandEvaluate > playerTwoHandEvaluate)
+            {
+                Console.WriteLine("Player №1 WINS!");
+                Program.playerMoney += Program.bank;
+            }
+            else if (playerHandEvaluate < playerTwoHandEvaluate)
+            {
+                Console.WriteLine("Player №2 WINS!");
+                Program.playerTwoMoney += Program.bank;
+            }
             else //if the hands are the same, evaluate the values
             {
                 //first evaluate who has higher value of poker hand
-                if (playerHandEvaluator.HandValues.Total > playerTwoHandEvaluator.HandValues.Total) { Console.WriteLine("Player №1 WINS!"); }
-                else if (playerHandEvaluator.HandValues.Total < playerTwoHandEvaluator.HandValues.Total) { Console.WriteLine("Player №2 WINS!"); }
+                if (playerHandEvaluator.HandValues.Total > playerTwoHandEvaluator.HandValues.Total)
+                {
+                    Console.WriteLine("Player №1 WINS!");
+                    Program.playerMoney += Program.bank;
+                }
+                else if (playerHandEvaluator.HandValues.Total < playerTwoHandEvaluator.HandValues.Total)
+                {
+                    Console.WriteLine("Player №2 WINS!");
+                    Program.playerTwoMoney += Program.bank;
+                }
 
                 //i# both hanve the same poker hand (for example, both have a pair of queens),
                 //than the player with the next higher card wins L
-                else if (playerHandEvaluator.HandValues.HighCard > playerTwoHandEvaluator.HandValues.HighCard) { Console.WriteLine("Player №1 WINS!"); }
-                else if (playerHandEvaluator.HandValues.HighCard < playerTwoHandEvaluator.HandValues.HighCard) { Console.WriteLine("Player №2 WINS!"); }
-                else { Console.WriteLine("No one wins!"); }
+                else if (playerHandEvaluator.HandValues.HighCard > playerTwoHandEvaluator.HandValues.HighCard)
+                {
+                    Console.WriteLine("Player №1 WINS!");
+                    Program.playerMoney += Program.bank;
+                }
+                else if (playerHandEvaluator.HandValues.HighCard < playerTwoHandEvaluator.HandValues.HighCard)
+                {
+                    Console.WriteLine("Player №2 WINS!");
+                    Program.playerTwoMoney += Program.bank;
+                }
+                else
+                {
+                    Console.WriteLine("No one wins!");
+                    Program.bank /= 2;
+                    Program.playerMoney += Program.bank;
+                    Program.playerTwoMoney += Program.bank;
+                }
             }
         }
 
