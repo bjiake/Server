@@ -13,6 +13,9 @@ namespace SocketTcpServer
         public Hand playerHandEvaluate;
         public Hand playerTwoHandEvaluate;
 
+        public HandEvaluator playerHandEvaluator;
+        public HandEvaluator playerTwoHandEvaluator;
+
         public Card[] playerHand;
         public Card[] playerTwoHand;
         public Card[] dealerCards;
@@ -26,6 +29,8 @@ namespace SocketTcpServer
 
         private Card[] sortedDeckCards;
         private Card[] sortedDeckCardsPlayerTwo;
+
+        
 
         public DealCards()
         {
@@ -65,8 +70,8 @@ namespace SocketTcpServer
         {
             //create player's computer's evaluation objects (passing SORTED hand to constructor)
 
-            HandEvaluator playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards, sortedDeckCards);
-            HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards, sortedDeckCardsPlayerTwo);
+            playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards, sortedDeckCards);
+            playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards, sortedDeckCardsPlayerTwo);
 
             //get the player;s and computer's hand
             playerHandEvaluate = playerHandEvaluator.EvaluateHand();

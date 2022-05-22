@@ -293,7 +293,6 @@ namespace SocketTcpServer
 
         private bool Straight()
         {
-
             int count = 0;
             int k;
             deck = new Card[7];
@@ -313,36 +312,32 @@ namespace SocketTcpServer
                     if (deck[i].MyValue - deck[i - 1].MyValue == 1)
                     {
                         k++;
-                        handValue.Total = (int)deckCards[i].MyValue;
+                        handValue.Total = 1;//(int)deckCards[i].MyValue + 1;
                         handValue.HighCard = (int)deckCards[i].MyValue;
                     }
-                    else return false;
+
+                    //else return false;
                 }
                 if (k > 4)
                 {
                     return true;
                 }
+                else if
+                    (
+                    (int)deck[count - 1].MyValue == 24 &&
+                    (int)deck[0].MyValue == 12 &&
+                    (int)deck[1].MyValue == 13 &&
+                    (int)deck[2].MyValue == 14 &&
+                    (int)deck[3].MyValue == 15
+                    )
+                {
+                    handValue.Total = 15;
+                    handValue.HighCard = 15;
+                    return true;
+                }
             }
             return false;
-            //3 5 consecutive values
-            //Стрит
-            //начало рука 0 конец стол
-            //0 - 0123, 0 - 1234
-            //Начало рука 1 конец стол
-            // 1 - 0123, 1 - 1234
-            //Начало стол конец рука 0
-            // - 0123,
-
-            //if (cardsDealer[0].MyValue + 1 == cardsDealer[1].MyValue &&
-            //    cardsDealer[1].MyValue + 1 == cardsDealer[2].MyValue &&
-            //    cardsDealer[2].MyValue + 1 == cardsDealer[3].MyValue &&
-            //    cardsDealer[3].MyValue + 1 == cardsDealer[4].MyValue)
-            //{
-            //    //player with the highest value of the last card wins
-            //    handValue.Total = (int)cardsDealer[4].MyValue;
-            //    return true;
-            //}
-
+            
         }
         private bool ThreeOfKind()
         {

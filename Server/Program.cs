@@ -166,15 +166,16 @@ namespace SocketTcpServer
             do
             {
                 DealCard.Deal();
-                DealCard.DisplayPlayerCard();
-                DealCard.DisplayPlayerTwoCard();
-                DealCard.DisplayFlope();
-                DealCard.DisplayTurn();
-                DealCard.DisplayRiver();
                 Console.SetCursorPosition(1, 28);
                 DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
             }
-            while (DealCard.playerTwoHandEvaluate != Hand.Straight || DealCard.playerHandEvaluate != Hand.Straight);
+            while (DealCard.playerHandEvaluate != Hand.Straight || (int)DealCard.playerHandEvaluator.HandValues.Total != 15 );
+            DealCard.DisplayPlayerCard();
+            DealCard.DisplayPlayerTwoCard();
+            DealCard.DisplayFlope();
+            DealCard.DisplayTurn();
+            DealCard.DisplayRiver();
+            
             try
             {
                 // связываем сокет с локальной точкой, по которой будем принимать данные
