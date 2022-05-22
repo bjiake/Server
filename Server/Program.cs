@@ -169,13 +169,15 @@ namespace SocketTcpServer
                 Console.SetCursorPosition(1, 28);
                 DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
             }
-            while (DealCard.playerHandEvaluate != Hand.Straight || (int)DealCard.playerHandEvaluator.HandValues.Total != 15 );
+            while (DealCard.playerHandEvaluate != Hand.StraightFlush && DealCard.playerTwoHandEvaluate != Hand.StraightFlush);
             DealCard.DisplayPlayerCard();
             DealCard.DisplayPlayerTwoCard();
             DealCard.DisplayFlope();
             DealCard.DisplayTurn();
             DealCard.DisplayRiver();
-            
+            Console.SetCursorPosition(1, 28);
+            DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
+
             try
             {
                 // связываем сокет с локальной точкой, по которой будем принимать данные

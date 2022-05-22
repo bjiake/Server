@@ -15,7 +15,9 @@ namespace SocketTcpServer
         Straight,
         Flush,
         FullHouse,
-        FourOfKind
+        FourOfKind,
+        StraightFlush,
+        FlushRoyal
     }
     public struct HandValue
     {
@@ -108,13 +110,15 @@ namespace SocketTcpServer
         public Hand EvaluateHand()
         {
             GetNumberOfSuit();
-            if (FourOfKind()) { return Hand.FourOfKind; } // работ ает
-            else if (FullHouse()) { return Hand.FullHouse; }
-            //else if (Flush()) { return Hand.Flush; }//работает
-            else if (Straight()) { return Hand.Straight; }
-            else if (ThreeOfKind()) { return Hand.ThreeOfKind; }
-            else if (TwoPairs()) { return Hand.TwoPairs; }//Не работает пара со столом
-            else if (OnePair()) { return Hand.OnePair; }
+            if (FlushRoyal()) { return Hand.FlushRoyal; }
+            else if(StraightFlush()) { return Hand.StraightFlush; }
+            else if (FourOfKind()) { return Hand.FourOfKind; } // Работает
+            else if (FullHouse()) { return Hand.FullHouse; }//Работает
+            else if (Flush()) { return Hand.Flush; }//работает
+            else if (Straight()) { return Hand.Straight; }//Работает
+            else if (ThreeOfKind()) { return Hand.ThreeOfKind; }//Работает
+            else if (TwoPairs()) { return Hand.TwoPairs; }//Работает
+            else if (OnePair()) { return Hand.OnePair; }//Работает
 
             else { handValue.HighCard = (int)cardsPlayer[1].MyValue; }//Сделать подсчет сильной карты
             return Hand.HighCard;
@@ -129,6 +133,72 @@ namespace SocketTcpServer
                 else if (element.MySuit == Card.SUIT.Clubs) { clubSum++; }
                 else if (element.MySuit == Card.SUIT.Spades) { spadesSum++; }
             }
+        }
+        private bool FlushRoyal()
+        {
+            if(StraightFlush())
+            {
+                if((int)handValue.Total == 24)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool StraightFlush()
+        {
+            if (heartsSum >= 5 || spadesSum >= 5 || diamondSum >= 5 || clubSum >= 5)
+            {
+                int count = 0;
+                int k;
+                deck = new Card[7];
+                for (int i = 0; i < 6; i++)
+                {
+                    if (deckCards[i].MyValue != deckCards[i + 1].MyValue)
+                    {
+                        deck[count] = deckCards[i];
+                        count++;
+                    }
+                }
+
+                if (count > 4)
+                {
+                    k = 1;
+                    for (int i = 1; i < count; i++)
+                    {
+                        if (deck[i].MyValue - deck[i - 1].MyValue == 1 && deck[i].MySuit == deck[i - 1].MySuit)
+                        {
+                            k++;
+                            handValue.Total = (int)deckCards[i].MyValue + 1;
+                            handValue.HighCard = (int)deckCards[i].MyValue + 1;
+                        }
+                        else if
+                        (
+                         CheckForStraightAce(deck) == 24 &&
+                        (int)deck[0].MyValue == 12 &&
+                        (int)deck[1].MyValue == 13 &&
+                        (int)deck[2].MyValue == 14 &&
+                        (int)deck[3].MyValue == 15 &&
+                        deck[0].MySuit == deck[1].MySuit &&
+                        deck[0].MySuit == deck[2].MySuit &&
+                        deck[0].MySuit == deck[3].MySuit &&
+                        deck[0].MySuit == deck[4].MySuit
+                        )
+                        {
+                            handValue.Total = 15;
+                            handValue.HighCard = 15;
+                            return true;
+                        }
+                        //else return false;
+                    }
+                    if (k > 4)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+            return false;
         }
 
         private bool FourOfKind()
@@ -213,26 +283,16 @@ namespace SocketTcpServer
         }
         private bool FullHouse()
         {
-            //the First three cars and last two cardsDealer are of the same value
-            // first two cardsDealer, and last three cardsDealer are of the same value
-            //3 одинаковых и 2 одинаковых
-            //
-            //if ((cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[0].MyValue == cardsDealer[2].MyValue && cardsDealer[3].MyValue == cardsDealer[4].MyValue) ||
-            //   (cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[2].MyValue == cardsDealer[3].MyValue && cardsDealer[2].MyValue == cardsDealer[4].MyValue))
-            //{
-            //    handValue.Total = (int)(cardsDealer[0].MyValue) + (int)(cardsDealer[1].MyValue) + (int)(cardsDealer[2].MyValue) +
-            //        (int)(cardsDealer[3].MyValue) + (int)(cardsDealer[4].MyValue);
-            //    return true;
-            //}
-            int total;
+            int totalThreeOfKind;
             if(ThreeOfKind())
             {
-                total = handValue.Total * 3;
+                totalThreeOfKind = handValue.Total;
                 for (int i = 6; i > 0; i--)
                 {
                     if (deckCards[i].MyValue == deckCards[i - 1].MyValue && deckCards[i].MyValue != threeOfKindCard.MyValue)
                     {
-                        handValue.Total = (int)deckCards[i].MyValue * 2 + total;
+                        handValue.Total = (int)deckCards[i].MyValue * 2 + totalThreeOfKind;
+                        handValue.HighCard = (int)deckCards[i].MyValue * 2;
                         return true;
                     }
                 }
@@ -312,32 +372,52 @@ namespace SocketTcpServer
                     if (deck[i].MyValue - deck[i - 1].MyValue == 1)
                     {
                         k++;
-                        handValue.Total = 1;//(int)deckCards[i].MyValue + 1;
-                        handValue.HighCard = (int)deckCards[i].MyValue;
+                        handValue.Total = (int)deckCards[i].MyValue + 1;
+                        handValue.HighCard = (int)deckCards[i].MyValue + 1;
                     }
-
+                    else if
+                    (
+                     CheckForStraightAce(deck) == 24 &&
+                    (int)deck[0].MyValue == 12 &&
+                    (int)deck[1].MyValue == 13 &&
+                    (int)deck[2].MyValue == 14 &&
+                    (int)deck[3].MyValue == 15
+                    )
+                    {
+                        handValue.Total = 15;
+                        handValue.HighCard = 15;
+                        return true;
+                    }
                     //else return false;
                 }
                 if (k > 4)
                 {
                     return true;
                 }
-                else if
-                    (
-                    (int)deck[count - 1].MyValue == 24 &&
-                    (int)deck[0].MyValue == 12 &&
-                    (int)deck[1].MyValue == 13 &&
-                    (int)deck[2].MyValue == 14 &&
-                    (int)deck[3].MyValue == 15
-                    )
-                {
-                    handValue.Total = 15;
-                    handValue.HighCard = 15;
-                    return true;
-                }
+                
             }
             return false;
             
+        }
+        private int CheckForStraightAce(Card[] deck)
+        {
+            int maxValue = 0;
+            int count = 6;
+            for(int i = 0; i < deck.Length; i ++)
+            {
+                if (deck[i]== null)
+                {
+                    count--;
+                }
+            }
+            for (int i = count; i > deck.Length; i--)
+            {
+                if ((int)deck[i].MyValue > maxValue)
+                {
+                    maxValue = (int)deck[i].MyValue;
+                }
+            }
+            return maxValue;
         }
         private bool ThreeOfKind()
         {
