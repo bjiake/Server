@@ -161,20 +161,29 @@ namespace SocketTcpServer
             // создаем сокет
             var listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+            DealCards DealCard = new DealCards();
+            DealCard.Deal();
+            DealCard.DisplayPlayerCard();
+            DealCard.DisplayPlayerTwoCard();
+            DealCard.DisplayFlope();
+            DealCard.DisplayTurn();
+            DealCard.DisplayRiver();
+            Console.SetCursorPosition(1, 28);
+            DealCard.EvaluateHands();//Допилить вывод победителя card[7]
             try
             {
                 // связываем сокет с локальной точкой, по которой будем принимать данные
-                listenSocket.Bind(IpPoint);
+                //listenSocket.Bind(IpPoint);
 
                 // начинаем прослушивание очередь входящих потоков
-                listenSocket.Listen(5);
+                //listenSocket.Listen(5);
 
                 Console.WriteLine("Сервер запущен. Ожидание подключений...");
 
                 while (true)
                 {
-                    Socket player = listenSocket.Accept();
-                    Socket playerTwo = listenSocket.Accept();
+                    //Socket player = listenSocket.Accept();
+                    //Socket playerTwo = listenSocket.Accept();
 
                     //SendPlayerData(message, player, playerTwo);
                     //message = "Игроки подключились!\n";
@@ -184,30 +193,31 @@ namespace SocketTcpServer
                     //message = "Вы 2 игрок\n";
                     //SendAlonePlayerData(message, playerTwo);
 
-                    DealCards DealCard = new DealCards();
-                    DealCard.Deal();
+                    //DealCards DealCard = new DealCards();
+                    //DealCard.Deal();
 
-                    DealCard.DisplayPlayerCard();
-                    DealCard.DisplayPlayerTwoCard();
-                    //stage 2
-                    SendCards(DealCard.playerHand, player);
-                    SendCards(DealCard.playerTwoHand, playerTwo);
+                    //DealCard.DisplayPlayerCard();
+                    //DealCard.DisplayPlayerTwoCard();
+                    ////stage 2
+                    //SendCards(DealCard.playerHand, player);
+                    //SendCards(DealCard.playerTwoHand, playerTwo);
 
-                    //stage 3
-                    DealCard.DisplayFlope();
-                    SendFlope(DealCard.dealerCards, player, playerTwo);
-                    sleep();
+                    ////stage 3
+                    //DealCard.DisplayFlope();
+                    //SendFlope(DealCard.dealerCards, player, playerTwo);
+                    //sleep();
 
-                    //stage 3
-                    DealCard.DisplayTurn();
-                    SendTurn(DealCard.dealerCards[stage], player, playerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
-                    sleep();
-                    //stage 4
-                    DealCard.DisplayRiver();
-                    SendRiver(DealCard.dealerCards[stage], player, playerTwo);
-                    sleep();
-                    Console.SetCursorPosition(1, 28);
-                    DealCard.EvaluateHands();
+                    ////stage 3
+                    //DealCard.DisplayTurn();
+                    //SendTurn(DealCard.dealerCards[stage], player, playerTwo);//ОШИБКА ОТПРАВЛЕНИЯ ТЕРНА
+                    //sleep();
+                    ////stage 4
+                    //DealCard.DisplayRiver();
+                    //SendRiver(DealCard.dealerCards[stage], player, playerTwo);
+                    //sleep();
+
+                    //Console.SetCursorPosition(1, 28);
+                    //DealCard.EvaluateHands();//Допилить вывод победителя card[7]
                 }
             }
             catch (Exception ex)

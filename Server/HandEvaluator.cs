@@ -34,17 +34,14 @@ namespace SocketTcpServer
         private Card[] deckCards;
         private Card[] cardsPlayer;
 
-        public bool FirstPlayer;
-
         private HandValue handValue;
 
-        public HandEvaluator(Card[] sortedHand, Card[] sortedDealerCards, Card[] sortedDeckCards, bool firstPlayer)
+        public HandEvaluator(Card[] sortedHand, Card[] sortedDealerCards, Card[] sortedDeckCards)
         {
             heartsSum = 0;
             diamondSum = 0;
             clubSum = 0;
             spadesSum = 0;
-            FirstPlayer = firstPlayer;
 
             cardsPlayer = new Card[2];
             CardsPlayer = sortedHand;
@@ -67,32 +64,18 @@ namespace SocketTcpServer
         public Card[] DeckCards
         {
             get { return deckCards; }
-
             set
             {
-                if (FirstPlayer == true)
-                {
-                    deckCards[0] = value[0];
-                    deckCards[1] = value[1];
-                    deckCards[2] = value[2];
-                    deckCards[3] = value[3];
-                    deckCards[4] = value[4];
-                    deckCards[5] = value[5];
-                    deckCards[6] = value[6];
-                }
-                else if (FirstPlayer == false)
-                {
-                    deckCards[0] = value[0];
-                    deckCards[1] = value[1];
-                    deckCards[2] = value[2];
-                    deckCards[3] = value[3];
-                    deckCards[4] = value[4];
-                    deckCards[5] = value[7];
-                    deckCards[6] = value[8];
-                }
+                deckCards[0] = value[0];
+                deckCards[1] = value[1];
+                deckCards[2] = value[2];
+                deckCards[3] = value[3];
+                deckCards[4] = value[4];
+                deckCards[5] = value[5];
+                deckCards[6] = value[6];
             }
         }
-    
+
 
         public Card[] CardsPlayer
         {
@@ -122,19 +105,19 @@ namespace SocketTcpServer
             GetNumberOfSuit();
             if (FourOfKind()) { return Hand.FourOfKind; }
             else if (FullHouse()) { return Hand.FullHouse; }
-            else if (Flush()) { return Hand.Flush; }
+            else if (Flush()) { return Hand.Flush; }//Не работает
             else if (Straight()) { return Hand.Straight; }
             else if (ThreeOfKind()) { return Hand.ThreeOfKind; }
-            else if (TwoPairs()) { return Hand.TwoPairs; }
+            else if (TwoPairs()) { return Hand.TwoPairs; }//Не работает пара со столом
             else if (OnePair()) { return Hand.OnePair; }
 
-            handValue.HighCard = (int)cardsDealer[4].MyValue;
+            handValue.HighCard = (int)cardsDealer[4].MyValue;//Сделать подсчет сильной карты
             return Hand.Nothing;
         }
 
         private void GetNumberOfSuit()
         {
-            foreach (var element in CardsPlayer)
+            foreach (var element in DeckCards)
             {
                 if (element.MySuit == Card.SUIT.Hearts) { heartsSum++; }
                 else if (element.MySuit == Card.SUIT.Diamonds) { diamondSum++; }
@@ -142,13 +125,13 @@ namespace SocketTcpServer
                 else if (element.MySuit == Card.SUIT.Spades) { spadesSum++; }
             }
 
-            foreach (var element in CardsDealer)
-            {
-                if (element.MySuit == Card.SUIT.Hearts) { heartsSum++; }
-                else if (element.MySuit == Card.SUIT.Diamonds) { diamondSum++; }
-                else if (element.MySuit == Card.SUIT.Clubs) { clubSum++; }
-                else if (element.MySuit == Card.SUIT.Spades) { spadesSum++; }
-            }
+            //foreach (var element in CardsDealer)
+            //{
+            //    if (element.MySuit == Card.SUIT.Hearts) { heartsSum++; }
+            //    else if (element.MySuit == Card.SUIT.Diamonds) { diamondSum++; }
+            //    else if (element.MySuit == Card.SUIT.Clubs) { clubSum++; }
+            //    else if (element.MySuit == Card.SUIT.Spades) { spadesSum++; }
+            //}
         }
 
         private bool FourOfKind()
@@ -160,7 +143,7 @@ namespace SocketTcpServer
             //12 - 01, 12 - 12, 12 - 23, 12 - 34
             //(cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[0].MyValue == cardsDealer[2].MyValue && cardsDealer[0].MyValue == cardsDealer[3].MyValue)
             //0 - 012
-            if (cardsPlayer[0].MyValue == cardsDealer[0].MyValue && cardsPlayer[0].MyValue == cardsDealer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[2].MyValue)      
+            if (cardsPlayer[0].MyValue == cardsDealer[0].MyValue && cardsPlayer[0].MyValue == cardsDealer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[2].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[0].MyValue * 4;
                 handValue.HighCard = (int)cardsPlayer[0].MyValue;
@@ -181,7 +164,7 @@ namespace SocketTcpServer
                 return true;
             }
             //1 - 012
-            else if(cardsPlayer[1].MyValue == cardsDealer[0].MyValue && cardsPlayer[1].MyValue == cardsDealer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[2].MyValue)
+            else if (cardsPlayer[1].MyValue == cardsDealer[0].MyValue && cardsPlayer[1].MyValue == cardsDealer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[2].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[1].MyValue * 4;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
@@ -201,29 +184,29 @@ namespace SocketTcpServer
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
                 return true;
             }
-            //12 - 01 
-            else if (cardsPlayer[1].MyValue == cardsPlayer[2].MyValue && cardsPlayer[1].MyValue == cardsDealer[0].MyValue && cardsPlayer[2].MyValue == cardsDealer[1].MyValue)
+            //01 - 01 
+            else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[0].MyValue && cardsPlayer[1].MyValue == cardsDealer[1].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[1].MyValue * 4;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
                 return true;
             }
-            //12 - 12
-            else if (cardsPlayer[1].MyValue == cardsPlayer[2].MyValue && cardsPlayer[1].MyValue == cardsDealer[1].MyValue && cardsPlayer[2].MyValue == cardsDealer[2].MyValue)
+            //01 - 12
+            else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[2].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[1].MyValue * 4;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
                 return true;
             }
-            //12 - 23
-            else if (cardsPlayer[1].MyValue == cardsPlayer[2].MyValue && cardsPlayer[1].MyValue == cardsDealer[2].MyValue && cardsPlayer[2].MyValue == cardsDealer[3].MyValue)
+            //02 - 23
+            else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[2].MyValue && cardsPlayer[1].MyValue == cardsDealer[3].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[1].MyValue * 4;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
                 return true;
             }
-            //12 - 34
-            else if (cardsPlayer[1].MyValue == cardsPlayer[2].MyValue && cardsPlayer[1].MyValue == cardsDealer[3].MyValue && cardsPlayer[2].MyValue == cardsDealer[4].MyValue)
+            //02 - 34
+            else if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue && cardsPlayer[1].MyValue == cardsDealer[3].MyValue && cardsPlayer[1].MyValue == cardsDealer[4].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[1].MyValue * 4;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
@@ -237,76 +220,108 @@ namespace SocketTcpServer
             // first two cardsDealer, and last three cardsDealer are of the same value
             //3 одинаковых и 2 одинаковых
             //
-            if ((cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[0].MyValue == cardsDealer[2].MyValue && cardsDealer[3].MyValue == cardsDealer[4].MyValue) ||
-               (cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[2].MyValue == cardsDealer[3].MyValue && cardsDealer[2].MyValue == cardsDealer[4].MyValue))
+            //if ((cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[0].MyValue == cardsDealer[2].MyValue && cardsDealer[3].MyValue == cardsDealer[4].MyValue) ||
+            //   (cardsDealer[0].MyValue == cardsDealer[1].MyValue && cardsDealer[2].MyValue == cardsDealer[3].MyValue && cardsDealer[2].MyValue == cardsDealer[4].MyValue))
+            //{
+            //    handValue.Total = (int)(cardsDealer[0].MyValue) + (int)(cardsDealer[1].MyValue) + (int)(cardsDealer[2].MyValue) +
+            //        (int)(cardsDealer[3].MyValue) + (int)(cardsDealer[4].MyValue);
+            //    return true;
+            //}
+            int total;
+            if(ThreeOfKind())
             {
-                handValue.Total = (int)(cardsDealer[0].MyValue) + (int)(cardsDealer[1].MyValue) + (int)(cardsDealer[2].MyValue) +
-                    (int)(cardsDealer[3].MyValue) + (int)(cardsDealer[4].MyValue);
-                return true;
+                total = handValue.Total / 3;
+                if (OnePair())
+                {
+                    if (total != handValue.Total / 2)
+                    {
+                        handValue.Total = total;
+                        return true;
+                    }
+                }
             }
             return false;
         }
         private bool Flush()
         {
-            int count = 7;
-
-            for (int i = 1; i <= 6; i++)
+            //if all suits are the same
+            if (heartsSum >= 5)
             {
-                if (deckCards[i].MySuit == deckCards[i - 1].MySuit)
+                for (int i = 6; i <= 4; i--)
                 {
-                    deckCards[i].MySuit = 0;
-                    count--;
-                }
-            }
-            if (count > 4)
-            {
-                count = 0;
-                for (int i = 1; i <= 6; i++)
-                {
-                    if (deckCards[i].MySuit != 0)
+                    if (deckCards[i].MySuit == Card.SUIT.Hearts)
                     {
-                        count++;
                         handValue.Total = (int)deckCards[i].MyValue;
+                        return true;
                     }
                 }
-                if (count > 4)
+            }
+            else if (diamondSum >= 5)
+            {
+                for (int i = 6; i <= 4; i--)
                 {
-                    return true;
-                    //street = true;
+                    if (deckCards[i].MySuit == Card.SUIT.Diamonds)
+                    {
+                        handValue.Total = (int)deckCards[i].MyValue;
+                        return true;
+                    }
+                }
+            }
+            else if (clubSum >= 5)
+            {
+                for (int i = 6; i <= 4; i--)
+                {
+                    if (deckCards[i].MySuit == Card.SUIT.Clubs)
+                    {
+                        handValue.Total = (int)deckCards[i].MyValue;
+                        return true;
+                    }
+                }
+            }
+            else if (spadesSum >= 5)
+            {
+                for (int i = 6; i <= 4; i--)
+                {
+                    if (deckCards[i].MySuit == Card.SUIT.Spades)
+                    {
+                        handValue.Total = (int)deckCards[i].MyValue;
+                        return true;
+                    }
                 }
             }
             return false;
-            //if all suits are the same
-
-            //if (heartsSum >= 5 || diamondSum >= 5 || clubSum >= 5 || spadesSum >= 5)
-            //{
-            //    //3# flush, the player with higher cardsDealer win
-
-            //    //whoever has the last card the highest, has automatically all the cardsDealer total higher
-            //    for(int i = 6; i >= 0; i--)
-            //    {
-            //        if (deckCards[i].MyValue == deckCards[i - 1].MyValue)
-            //        {
-            //            handValue.Total = (int)deckCards[i].MyValue;
-            //            deckCards[i].mys
-            //        }
-            //    }
-            //    //if (cardsPlayer[1].MyValue > CardsDealer[4].MyValue)
-            //    //{
-            //    //    handValue.Total = (int)cardsPlayer[1].MyValue;
-            //    //}
-            //    //else if (cardsPlayer[1].MyValue < CardsDealer[4].MyValue)
-            //    //{
-            //    //    handValue.Total = (int)cardsDealer[4].MyValue;
-            //    //}
-            //    return true;
-            //}
-
         }
+
+
+        //if (heartsSum >= 5 || diamondSum >= 5 || clubSum >= 5 || spadesSum >= 5)
+        //{
+        //    //3# flush, the player with higher cardsDealer win
+
+        //    //whoever has the last card the highest, has automatically all the cardsDealer total higher
+        //    for(int i = 6; i >= 0; i--)
+        //    {
+        //        if (deckCards[i].MyValue == deckCards[i - 1].MyValue)
+        //        {
+        //            handValue.Total = (int)deckCards[i].MyValue;
+        //            deckCards[i].mys
+        //        }
+        //    }
+        //    //if (cardsPlayer[1].MyValue > CardsDealer[4].MyValue)
+        //    //{
+        //    //    handValue.Total = (int)cardsPlayer[1].MyValue;
+        //    //}
+        //    //else if (cardsPlayer[1].MyValue < CardsDealer[4].MyValue)
+        //    //{
+        //    //    handValue.Total = (int)cardsDealer[4].MyValue;
+        //    //}
+        //    return true;
+        //}
+
+
         private bool Straight()
         {
             int count = 7;
-            
+
             for (int i = 1; i <= 6; i++)
             {
                 if (deckCards[i].MyValue == deckCards[i - 1].MyValue)
@@ -315,7 +330,7 @@ namespace SocketTcpServer
                     count--;
                 }
             }
-            if(count > 4)
+            if (count > 4)
             {
                 count = 0;
                 for (int i = 1; i <= 6; i++)
@@ -326,7 +341,7 @@ namespace SocketTcpServer
                         handValue.Total = (int)deckCards[i].MyValue;
                     }
                 }
-                if(count > 4)
+                if (count > 4)
                 {
                     return true;
                     //street = true;
@@ -367,7 +382,7 @@ namespace SocketTcpServer
                 return true;
             }
             //0 - 12
-            else if(cardsPlayer[0].MyValue == cardsDealer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[2].MyValue)
+            else if (cardsPlayer[0].MyValue == cardsDealer[1].MyValue && cardsPlayer[0].MyValue == cardsDealer[2].MyValue)
             {
                 handValue.Total = (int)cardsDealer[0].MyValue * 3;
                 handValue.HighCard = (int)cardsDealer[0].MyValue;
@@ -673,13 +688,13 @@ namespace SocketTcpServer
             // - 01
             //Пары в руке
             // 01 -
-            if(cardsPlayer[0].MyValue == cardsPlayer[1].MyValue)
+            if (cardsPlayer[0].MyValue == cardsPlayer[1].MyValue)
             {
                 handValue.Total = (int)cardsPlayer[0].MyValue * 2;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;
                 return true;
             }
-            else if(cardsDealer[0].MyValue == cardsDealer[1].MyValue)
+            else if (cardsDealer[0].MyValue == cardsDealer[1].MyValue)
             {
                 handValue.Total = (int)cardsDealer[0].MyValue * 2;
                 handValue.HighCard = (int)cardsPlayer[1].MyValue;

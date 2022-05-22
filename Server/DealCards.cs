@@ -14,9 +14,15 @@ namespace SocketTcpServer
         public Card[] playerTwoHand;
         public Card[] dealerCards;
 
+        public Card[] deckCards;
+        public Card[] deckCardsPlayerTwo;
+
         private Card[] sortedPlayerTwoHand;
         private Card[] sortedPlayerHand;
         private Card[] sortedDealerCards;
+
+        private Card[] sortedDeckCards;
+        private Card[] sortedDeckCardsPlayerTwo;
 
         public DealCards()
         {
@@ -24,9 +30,17 @@ namespace SocketTcpServer
             playerTwoHand = new Card[2];
             dealerCards = new Card[5];
 
+            
+
             sortedPlayerHand = new Card[2];
             sortedPlayerTwoHand = new Card[2];
             sortedDealerCards = new Card[5];
+
+            deckCards = new Card[7];
+            sortedDeckCards = new Card[7];
+
+            deckCardsPlayerTwo = new Card[7];
+            sortedDeckCardsPlayerTwo = new Card[7];
         }
         
         public void Deal()
@@ -48,15 +62,15 @@ namespace SocketTcpServer
         {
             //create player's computer's evaluation objects (passing SORTED hand to constructor)
 
-            HandEvaluator playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards, sortedDealerCards, true);
-            HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards, sortedDealerCards, false);
+            HandEvaluator playerHandEvaluator = new(sortedPlayerHand, sortedDealerCards, sortedDeckCards);
+            HandEvaluator playerTwoHandEvaluator = new(sortedPlayerTwoHand, sortedDealerCards, sortedDeckCardsPlayerTwo);
 
             //get the player;s and computer's hand
             Hand playerHand = playerHandEvaluator.EvaluateHand();
             Hand playerTwoHand = playerTwoHandEvaluator.EvaluateHand();
 
             //display each hand
-            
+
             Console.WriteLine("\nPlayer Hand: " + playerHand);
             Console.WriteLine("\nPlayer Two Hand: " + playerTwoHand);
 
@@ -145,12 +159,21 @@ namespace SocketTcpServer
             var QueryPlayer = from hand in playerHand
                               orderby hand.MyValue
                               select hand;
+
             var QueryPlayerTwo = from hand in playerTwoHand
-                              orderby hand.MyValue
-                              select hand;
+                                 orderby hand.MyValue
+                                 select hand;
+
             var QueryDealer = from hand in dealerCards
                               orderby hand.MyValue
                               select hand;
+
+            var QueryDeckCards = from hand in deckCards
+                                 orderby hand.MyValue
+                                 select hand;
+            var QueryDeckCardsPlayerTwo = from hand in deckCardsPlayerTwo
+                                          orderby hand.MyValue
+                                          select hand;
 
             var index = 0;
             foreach (var element in QueryPlayer.ToList())
@@ -172,6 +195,20 @@ namespace SocketTcpServer
                 sortedDealerCards[index] = element;
                 index++;
             }
+
+            index = 0;
+            foreach (var element in QueryDeckCards.ToList())
+            {
+                sortedDeckCards[index] = element;
+                index++;
+            }
+            index = 0;
+            foreach (var element in QueryDeckCards.ToList())
+            {
+                sortedDeckCardsPlayerTwo[index] = element;
+                index++;
+            }
+            
         }
         public void GetHand()//Раздача карт
         {
@@ -190,6 +227,21 @@ namespace SocketTcpServer
             {
                 playerTwoHand[i - 7] = getDeck[i];
             }
+            for (int i = 0; i < 7; i++)
+            {
+                deckCards[i] = getDeck[i];
+            }
+            for (int i = 0; i < 7; i++)
+            {
+                if (i < 5)
+                {
+                    deckCardsPlayerTwo[i] = getDeck[i];
+                }
+                else if (i >= 5)
+                {
+                    deckCardsPlayerTwo[i] = getDeck[i + 2];
+                }
+            }
         }
 
         
@@ -206,7 +258,8 @@ namespace SocketTcpServer
             for (int i = 5; i < 7; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(playerHand[i - 5], x, y);
+                DrawCards.DrawCardSuitValue(sortedPlayerHand[i - 5], x, y);
+                //DrawCards.DrawCardSuitValue(playerHand[i - 5], x, y);
                 x++;
             }
         }
@@ -224,7 +277,8 @@ namespace SocketTcpServer
             for (int i = 7; i < 9; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(playerTwoHand[i - 7], x, y);
+                DrawCards.DrawCardSuitValue(sortedPlayerTwoHand[i - 7], x, y);
+                //DrawCards.DrawCardSuitValue(playerTwoHand[i - 7], x, y);
                 x++;
             }
         }
@@ -245,7 +299,8 @@ namespace SocketTcpServer
             for (int i = 0; i < 3; i++)
             {
                 DrawCards.DrawCardOutLine(x, y);
-                DrawCards.DrawCardSuitValue(dealerCards[i], x, y);
+                DrawCards.DrawCardSuitValue(sortedDealerCards[i], x, y);
+                //DrawCards.DrawCardSuitValue(dealerCards[i], x, y);
                 x++;
             }
         }
@@ -257,7 +312,8 @@ namespace SocketTcpServer
             Console.SetCursorPosition(x, y);
 
             DrawCards.DrawCardOutLine(x, y);
-            DrawCards.DrawCardSuitValue(dealerCards[x], x, y);
+            DrawCards.DrawCardSuitValue(sortedDealerCards[x], x, y);
+            //DrawCards.DrawCardSuitValue(dealerCards[x], x, y);
         }
 
         public void DisplayRiver()//Отображение ривера
@@ -268,7 +324,8 @@ namespace SocketTcpServer
             Console.SetCursorPosition(x, y);
 
             DrawCards.DrawCardOutLine(x, y);
-            DrawCards.DrawCardSuitValue(dealerCards[x], x, y);
+            DrawCards.DrawCardSuitValue(sortedDealerCards[x], x, y);
+            //DrawCards.DrawCardSuitValue(dealerCards[x], x, y);
         }
     }
 
