@@ -138,7 +138,7 @@ namespace SocketTcpServer
         {
             if(StraightFlush())
             {
-                if((int)handValue.Total == 24)
+                if((int)handValue.Total == 24 && deck[6].MySuit == deck[5].MySuit)
                 {
                     return true;
                 }

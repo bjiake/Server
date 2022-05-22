@@ -169,7 +169,7 @@ namespace SocketTcpServer
                 Console.SetCursorPosition(1, 28);
                 DealCard.EvaluateHands();//Допилить вывод победителя построить на основании card[7]
             }
-            while (DealCard.playerHandEvaluate != Hand.StraightFlush && DealCard.playerTwoHandEvaluate != Hand.StraightFlush);
+            while (DealCard.playerHandEvaluate != Hand.FlushRoyal && DealCard.playerTwoHandEvaluate != Hand.FlushRoyal);
             DealCard.DisplayPlayerCard();
             DealCard.DisplayPlayerTwoCard();
             DealCard.DisplayFlope();
