@@ -85,12 +85,12 @@ namespace SocketTcpServer
             //evaluate hands
             if (playerHandEvaluate > playerTwoHandEvaluate)
             {
-                Console.WriteLine("Player №1 WINS!");
+                Console.WriteLine("Player №1 WINS! Его выигрыш:" + Program.bank);
                 Program.playerMoney += Program.bank;
             }
             else if (playerHandEvaluate < playerTwoHandEvaluate)
             {
-                Console.WriteLine("Player №2 WINS!");
+                Console.WriteLine("Player №2 WINS! Его выигрыш:" + Program.bank);
                 Program.playerTwoMoney += Program.bank;
             }
             else //if the hands are the same, evaluate the values
@@ -98,12 +98,12 @@ namespace SocketTcpServer
                 //first evaluate who has higher value of poker hand
                 if (playerHandEvaluator.HandValues.Total > playerTwoHandEvaluator.HandValues.Total)
                 {
-                    Console.WriteLine("Player №1 WINS!");
+                    Console.WriteLine("Player №1 WINS! Его выигрыш:" + Program.bank);
                     Program.playerMoney += Program.bank;
                 }
                 else if (playerHandEvaluator.HandValues.Total < playerTwoHandEvaluator.HandValues.Total)
                 {
-                    Console.WriteLine("Player №2 WINS!");
+                    Console.WriteLine("Player №2 WINS! Его выигрыш:" + Program.bank);
                     Program.playerTwoMoney += Program.bank;
                 }
 
@@ -111,12 +111,12 @@ namespace SocketTcpServer
                 //than the player with the next higher card wins L
                 else if (playerHandEvaluator.HandValues.HighCard > playerTwoHandEvaluator.HandValues.HighCard)
                 {
-                    Console.WriteLine("Player №1 WINS!");
+                    Console.WriteLine("Player №1 WINS! Его выигрыш:" + Program.bank);
                     Program.playerMoney += Program.bank;
                 }
                 else if (playerHandEvaluator.HandValues.HighCard < playerTwoHandEvaluator.HandValues.HighCard)
                 {
-                    Console.WriteLine("Player №2 WINS!");
+                    Console.WriteLine("Player №2 WINS! Его выигрыш:" + Program.bank);
                     Program.playerTwoMoney += Program.bank;
                 }
                 else
@@ -125,6 +125,7 @@ namespace SocketTcpServer
                     Program.bank /= 2;
                     Program.playerMoney += Program.bank;
                     Program.playerTwoMoney += Program.bank;
+                    Console.WriteLine("Каждый получил:" + Program.bank);
                 }
             }
         }

@@ -30,9 +30,10 @@ namespace SocketTcpServer
             int choosen;
 
             bool trueChoice = true;
-
+            Console.SetCursorPosition(0, 36);
             Console.WriteLine("\nВыберите свой ход: Check - 0, Call - 1, Raise - 2, Fold - 3");
             choosen = Convert.ToInt32(Console.ReadLine());
+
 
             while (trueChoice)
             {
@@ -69,58 +70,60 @@ namespace SocketTcpServer
 
         public static int Check()//Чек ничего не ставить, если ставки равны, если ставка противника больше, фолд
         {
-            if(betPlayer < GeneralEnemyBet)
+            if(GeneralBet < GeneralEnemyBet)
             {
                 if(PlayerMoney >= GeneralEnemyBet - betPlayer)
                 {
-                    return betPlayer = GeneralEnemyBet - betPlayer;//Если хватает на повышение ставки
+                    return (GeneralEnemyBet - GeneralBet);//Если хватает на повышение ставки
                 }
                 else
                 {
-                    return betPlayer = PlayerMoney;//Если не хватает на повышение ставки -> ставится все
+                    return PlayerMoney;//Если не хватает на повышение ставки -> ставится все
                 }
             }
-            return GeneralBet - betPlayer;
+            return 0;
         }
 
         public static int Call()//Уровнять ставку со ставкой противника
         {
-            if(betPlayer < GeneralEnemyBet)
+            if(GeneralBet < GeneralEnemyBet)
             {
                 if (PlayerMoney >= GeneralEnemyBet - betPlayer)//Если хватает на повышение ставки
                 {
-                    return betPlayer = GeneralEnemyBet - betPlayer;
+                    return (GeneralEnemyBet - GeneralBet);
                 }
                 else
                 {
-                    return betPlayer = PlayerMoney;//Если не хватает на повышение ставки -> ставится все
+                    return PlayerMoney;//Если не хватает на повышение ставки -> ставится все
                 }
             }
-            return GeneralBet - betPlayer;
+            return 0;
         }
 
         public static int Raise()
         {
             Console.WriteLine("На сколько денег Вы хотите повысить ставку?");
             bool choice = false;
+            int valueRaise;
             while (!choice)
             {
-                int valueRaise = Convert.ToInt32(Console.ReadLine());
+                valueRaise = Convert.ToInt32(Console.ReadLine());
                 if (valueRaise <= PlayerMoney && valueRaise >= BigBlind)
                 {
                     PlayerMoney -= valueRaise;
                     betPlayer += valueRaise;
                     choice = true;
+                    return valueRaise;
                 }
                 else { Console.WriteLine("Вы ввели некоректную ставку"); }
             }
-            return GeneralBet - betPlayer;
+            return 0;
         }
 
         public static int Fold()
         {
             Program.roundContinue = false;
-            return 0;
+            return -1;
         }
 
     }
