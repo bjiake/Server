@@ -33,7 +33,8 @@ namespace SocketTcpServer
             Console.SetCursorPosition(0, 36);
             Console.WriteLine("\nВыберите свой ход: Check - 0, Call - 1, Raise - 2, Fold - 3");
             choosen = Convert.ToInt32(Console.ReadLine());
-
+            //1 чел - коллит
+            //2 чел рейзит
 
             while (trueChoice)
             {
@@ -49,9 +50,10 @@ namespace SocketTcpServer
                         break;
                     case 2:
                         if(PlayerMoney >= BigBlind)
-                        { 
-                            betPlayer = Raise(); 
-                            trueChoice = false; 
+                        {
+                            trueChoice = false;
+                            betPlayer = Raise();
+                            break;
                         }     
                         break;
                     case 3:
@@ -70,7 +72,8 @@ namespace SocketTcpServer
 
         public static int Check()//Чек ничего не ставить, если ставки равны, если ставка противника больше, фолд
         {
-            if(GeneralBet < GeneralEnemyBet)
+            Program.MyPlayerMove = Program.PlayersMove.Check;
+            if (GeneralBet < GeneralEnemyBet)
             {
                 if(PlayerMoney >= GeneralEnemyBet - betPlayer)
                 {
@@ -86,7 +89,8 @@ namespace SocketTcpServer
 
         public static int Call()//Уровнять ставку со ставкой противника
         {
-            if(GeneralBet < GeneralEnemyBet)
+            Program.MyPlayerMove = Program.PlayersMove.Call;
+            if (GeneralBet < GeneralEnemyBet)
             {
                 if (PlayerMoney >= GeneralEnemyBet - betPlayer)//Если хватает на повышение ставки
                 {
@@ -102,6 +106,7 @@ namespace SocketTcpServer
 
         public static int Raise()
         {
+            Program.MyPlayerMove = Program.PlayersMove.Raise;
             Console.WriteLine("На сколько денег Вы хотите повысить ставку?");
             bool choice = false;
             int valueRaise;
@@ -122,8 +127,9 @@ namespace SocketTcpServer
 
         public static int Fold()
         {
+            Program.MyPlayerMove = Program.PlayersMove.Fold;
             Program.roundContinue = false;
-            return -1;
+            return 0;
         }
 
     }
