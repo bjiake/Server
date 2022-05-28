@@ -468,7 +468,7 @@ namespace SocketTcpServer
         public static Winner myWinner { get; set; }
 
 
-        static void Main()
+        static void Main() //Допилить ввод-вывод клиентов
         {
             Console.Title = "Блэйк Джек сервер";
 
