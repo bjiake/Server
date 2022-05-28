@@ -26,14 +26,11 @@ namespace SocketTcpServer
         public static int smallBlind;//smallBlind делает первый ход
         public static int bigBlind;
 
-        public static bool roundContinue = true;//Для проведения раунда
-        public static bool breakRound = false;
         public static int round = 1;//Счет раунда, каждые 5 раундов блайнды * 2, каждый 2й раунд smallBlind у 1 игрока
 
         static int port = 2115; // порт для приема входящих запросов
-        static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194 
+        static string HostName = "127.0.0.1";// Порт сервера 176.196.126.194  //Порт локальной 127.0.0.1
         public static int stage = 2;//stage 2 Карты игроков, stage 3 Карты флопа и терна, stage 4 ривер
-        //Порт локальной 127.0.0.1
 
         public static void RecievePlayerData(Socket player)//Позже нужный мусор забей хуй
         {
@@ -163,13 +160,13 @@ namespace SocketTcpServer
         public static void displayInformation()
         {
             Console.ForegroundColor = ConsoleColor.Black;
-            ClearLine(30); ClearLine(31); ClearLine(32); ClearLine(33); ClearLine(34); ClearLine(35); ClearLine(36); ClearLine(37); ClearLine(38);
+            ClearLine(30, 38);
             Console.SetCursorPosition(0, 30);
         }
-        public static void displayBank(int y)//Отобразить банк
+        public static void displayBank()//Отобразить банк
         {
-            ClearLine(y);
-            Console.SetCursorPosition(0, y);
+            ClearLine(28, 28);
+            Console.SetCursorPosition(0, 28);
             Console.WriteLine("Банк:" + bank);
         }
 
@@ -183,192 +180,118 @@ namespace SocketTcpServer
 
         public static PlayersMove MyPlayerMove { get; set; }
 
+        public static Winner MotionPlayerOne()
+        {
+            displayBank();//Отобразить банк диллера
+
+            Console.SetCursorPosition(0, 30);
+
+            Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer
+                + "\tБаланс соперника:" + playerTwoMoney + "\tСтавка соперника:" + generalBetPlayerTwo);
+
+            //На сколько поднял ставка первый игрок
+            betPlayer = PlayerMoney.ChoosePlayer(playerMoney, generalBetPlayer, generalBetPlayerTwo, smallBlind, bigBlind);
+
+
+            generalBetPlayer += betPlayer;//Общая ставка 1 игрока
+            playerMoney -= betPlayer;//Банк 1 игрока
+            bank += betPlayer;//Общий банк
+
+            displayBank();//Отобразить банк диллера
+
+            if (MyPlayerMove == PlayersMove.Fold)
+            {
+                return Winner.PlayerTwoWin;
+                //return Winner.PlayerTwoWin;//Fold, выигрыш достается второму игроку
+            }
+
+            return Winner.NoOneWins;
+        }
+
+        public static Winner MotionPlayerTwo()
+        {
+            displayBank();//Отобразить банк диллера
+
+            Console.SetCursorPosition(0, 35);
+
+            Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo
+                + "\tБаланс соперника:" + playerMoney + "\tСтавка соперника:" + generalBetPlayer);
+            betPlayerTwo = PlayerTwoMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
+
+            generalBetPlayerTwo += betPlayerTwo;
+            playerTwoMoney -= betPlayerTwo;
+            bank += betPlayerTwo;
+
+            displayBank();
+
+            if (MyPlayerMove == PlayersMove.Fold)
+            {
+                return Winner.PlayerOneWin;//Фолд 2 игрока, выигрыш 1
+            }
+
+
+
+            return Winner.NoOneWins;
+        }
         public static Winner CheckFirstTurn()
         {
             //1 чел коллит
             //2 чел рэйз
             //код идет
             displayInformation();
-            
+
             if (round % 2 == 0)
             {
-                Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
+                //На сколько поднял ставку первый первый игрок
+                myWinner = MotionPlayerOne();
+                if (myWinner == Winner.PlayerTwoWin) { return Winner.PlayerTwoWin; }
 
-                //На сколько поднял ставка первый игрок
-                betPlayer = PlayerMoney.ChoosePlayer(playerMoney, generalBetPlayer, generalBetPlayerTwo, smallBlind, bigBlind);
-                if (MyPlayerMove == PlayersMove.Fold)
-                {
-                    return Winner.PlayerTwoWin;//Fold, выигрыш достается второму игроку
-                }
-                
-                generalBetPlayer += betPlayer;//Общая ставка 1 игрока
-                playerMoney -= betPlayer;//Банк 1 игрока
-                bank += betPlayer;//Общий банк
+                //На сколько поднял ставку первый второй игрок
+                myWinner = MotionPlayerTwo();
+                if (myWinner == Winner.PlayerOneWin) { return Winner.PlayerOneWin; }
 
-                ClearLine(30); Console.SetCursorPosition(0, 30);//Чистка консоли
-                Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
-                ClearLine(36); ClearLine(37);//Чистка консоли
-
-                displayBank(31);//Отобразить банк диллера
-                Console.SetCursorPosition(0, 34);
-                breakRound = roundContinue;
-
-                //На сколько поднял ставку первый игрок
-                Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
-                betPlayerTwo = PlayerTwoMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
-                if (MyPlayerMove == PlayersMove.Fold)
-                {
-                    return Winner.PlayerOneWin;//Фолд 2 игрока, выигрыш 1
-                }
-                generalBetPlayerTwo += betPlayerTwo;
-                playerTwoMoney -= betPlayerTwo;
-                breakRound = roundContinue;
-                bank += betPlayerTwo;
-
-                displayBank(35);
-                ClearLine(30);
-                ClearLine(36); ClearLine(37);
-                Console.SetCursorPosition(0, 30);
-                Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
                 if (MyPlayerMove == PlayersMove.Raise)
                 {
 
                     do
                     {
                         //На сколько поднял ставку первый игрок
-                        Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
-                        betPlayer = PlayerMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
-
-                        generalBetPlayerTwo += betPlayerTwo;
-                        playerTwoMoney -= betPlayerTwo;
-                        breakRound = roundContinue;
-                        bank += betPlayerTwo;
-                        displayBank(35);
-                        if (MyPlayerMove == PlayersMove.Fold)
-                        {
-                            return Winner.PlayerTwoWin;//Фолд 1 выигрыш 2
-                        }
-
-                        
-                        ClearLine(30);
-                        ClearLine(36); ClearLine(37);
-                        Console.SetCursorPosition(0, 30);
-                        Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
+                        myWinner = MotionPlayerOne();
+                        if (myWinner == Winner.PlayerTwoWin) { return Winner.PlayerTwoWin; }
 
                         //Ход 2 игрока
-                        Console.WriteLine("Ваш баланс(1):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);
-                        betPlayerTwo = PlayerMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
-                        
-                        generalBetPlayerTwo += betPlayerTwo;
-                        playerTwoMoney -= betPlayerTwo;
-                        breakRound = roundContinue;
-                        bank += betPlayerTwo;
-                        displayBank(35);
-
-                        if (MyPlayerMove == PlayersMove.Fold)
-                        {
-                            return Winner.PlayerOneWin;//Фолд 2 игрока, выигрыш 1
-                        }
-
-                        ClearLine(30);
-                        Console.SetCursorPosition(0, 30);
-                        Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
-                        ClearLine(36); ClearLine(37);
+                        myWinner = MotionPlayerTwo();
+                        if (myWinner == Winner.PlayerOneWin) { return Winner.PlayerOneWin; }
+                        ClearLine(30, 39);
                     }
-                    while (generalBetPlayer == generalBetPlayerTwo);
+                    while (generalBetPlayer != generalBetPlayerTwo);
                 }
                 return Winner.NoOneWins;
             }
             else
             {
                 //Ход 2 игрока
-                Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
-                betPlayerTwo = PlayerTwoMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind); 
-                
-                generalBetPlayerTwo += betPlayerTwo;
-                playerTwoMoney -= betPlayerTwo;
-                breakRound = roundContinue;
-                bank += betPlayerTwo;
+                myWinner = MotionPlayerTwo();
+                if (myWinner == Winner.PlayerOneWin) { return Winner.PlayerOneWin; }
 
-                if (MyPlayerMove == PlayersMove.Fold)
-                {
-                    return Winner.PlayerOneWin;//Фолд 2 игрока, выигрыш 1
-                }
-
-                ClearLine(30);
-                Console.SetCursorPosition(0, 30);
-                Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
-                displayBank(31);
-                Console.SetCursorPosition(0, 34);
-                ClearLine(36); ClearLine(37);
-
-
-               //Ход 1 игрока
-                Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
-                betPlayer = PlayerMoney.ChoosePlayer(playerMoney, generalBetPlayer, generalBetPlayerTwo, smallBlind, bigBlind);
-
-                generalBetPlayer += betPlayer;
-                playerMoney -= betPlayer;
-                breakRound = roundContinue;
-                bank += betPlayer;
-                displayBank(35);
-
-                if (MyPlayerMove == PlayersMove.Fold)
-                {
-                    return Winner.PlayerTwoWin;//Фолд 1 игрока, выигрыш 2
-                }
-
-                ClearLine(30);
-                Console.SetCursorPosition(0, 30);
-                Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
-                ClearLine(36); ClearLine(37);
-
+                //Ход 1 игрока
+                myWinner = MotionPlayerOne();
+                if (myWinner == Winner.PlayerTwoWin) { return Winner.PlayerTwoWin; }
                 if (MyPlayerMove == PlayersMove.Raise)
                 {
 
                     do
                     {
                         //Ход 2 игрока
-                        Console.WriteLine("Ваш баланс(1):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);
-                        betPlayerTwo = PlayerMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
-                        
-                        generalBetPlayerTwo += betPlayerTwo;
-                        playerTwoMoney -= betPlayerTwo;
-                        breakRound = roundContinue;
-                        bank += betPlayerTwo;
-                        displayBank(35);
-
-                        if (MyPlayerMove == PlayersMove.Fold)
-                        {
-                            return Winner.PlayerOneWin;//Фолд 2 игрока, выигрыш 1
-                        }
-
-                        ClearLine(30);
-                        Console.SetCursorPosition(0, 30);
-                        Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаша текущая ставка:" + generalBetPlayer + "\nБанк:" + bank);
-                        ClearLine(36); ClearLine(37);
+                        myWinner = MotionPlayerTwo();
+                        if (myWinner == Winner.PlayerOneWin) { return Winner.PlayerOneWin; }
 
                         //На сколько поднял ставку первый игрок
-                        Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
-                        betPlayer = PlayerMoney.ChoosePlayer(playerTwoMoney, generalBetPlayerTwo, generalBetPlayer, smallBlind, bigBlind);
-
-                        generalBetPlayerTwo += betPlayerTwo;
-                        playerTwoMoney -= betPlayerTwo;
-                        breakRound = roundContinue;
-                        bank += betPlayerTwo;
-
-                        if (MyPlayerMove == PlayersMove.Fold)
-                        {
-                            return Winner.PlayerTwoWin;//Фолд 2 выигрыш 1
-                        }
-
-                        displayBank(35);
-                        ClearLine(30);
-                        ClearLine(36); ClearLine(37);
-                        Console.SetCursorPosition(0, 30);
-                        Console.WriteLine("Ваш баланс(2):" + playerTwoMoney + "\tВаша текущая ставка:" + generalBetPlayerTwo + "\nБанк:" + bank);// + "\nБаланс противника:" + playerMoney + "\tТекущая ставка противника:" + generalBetPlayer);
+                        myWinner = MotionPlayerOne();
+                        if (myWinner == Winner.PlayerTwoWin) { return Winner.PlayerTwoWin; }
+                        ClearLine(30, 39);
                     }
-                    while (generalBetPlayer == generalBetPlayerTwo);
+                    while (generalBetPlayer != generalBetPlayerTwo);
                 }
 
                 return Winner.NoOneWins;//Никто не фолдил
@@ -379,8 +302,8 @@ namespace SocketTcpServer
         {
             if (round % 2 != 0)
             {
-                if(playerTwoMoney >= smallBlind)
-                {   
+                if (playerTwoMoney >= smallBlind)
+                {
                     generalBetPlayerTwo += smallBlind;
                     bank += smallBlind;
                     playerTwoMoney -= smallBlind;
@@ -391,8 +314,8 @@ namespace SocketTcpServer
                     bank += playerTwoMoney;
                     playerTwoMoney = 0;
                 }
-                
-                if(playerMoney >= bigBlind)
+
+                if (playerMoney >= bigBlind)
                 {
                     generalBetPlayer += bigBlind;
                     bank += bigBlind;
@@ -404,7 +327,7 @@ namespace SocketTcpServer
                     bank += playerMoney;
                     playerMoney = 0;
                 }
-                
+
             }
             else
             {
@@ -421,7 +344,7 @@ namespace SocketTcpServer
                     playerMoney = 0;
                 }
 
-                if(playerTwoMoney >= bigBlind)
+                if (playerTwoMoney >= bigBlind)
                 {
                     generalBetPlayerTwo += bigBlind;
                     bank += bigBlind;
@@ -441,22 +364,25 @@ namespace SocketTcpServer
             if (round % 5 == 0)
             {
                 smallBlind *= 2;
-                bigBlind *= 2;
+                bigBlind = smallBlind * 2;
             }
         }
 
-        public static void ClearLine(int line)
+        public static void ClearLine(int startLine, int endLine)
         {
-            Console.MoveBufferArea(0, line, Console.BufferWidth, 1, Console.BufferWidth, line, ' ', Console.ForegroundColor, Console.BackgroundColor);
+            for (int i = startLine; i < endLine + 1; i++)
+            {
+                Console.MoveBufferArea(0, i, Console.BufferWidth, 1, Console.BufferWidth, i, ' ', Console.ForegroundColor, Console.BackgroundColor);
+            }
         }
 
         public static void displayWinner()
         {
-            ClearLine(30); ClearLine(31); ClearLine(32); ClearLine(33); ClearLine(34); ClearLine(35);
+            ClearLine(30, 39);
             Console.SetCursorPosition(0, 30);
             Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаш баланс(2):" + playerTwoMoney);
+            Console.ReadLine();
         }
-
 
         public enum Winner
         {
@@ -464,8 +390,8 @@ namespace SocketTcpServer
             PlayerOneWin,
             PlayerTwoWin
         }
-
         public static Winner myWinner { get; set; }
+
 
 
         static void Main() //Допилить ввод-вывод клиентов
@@ -474,7 +400,7 @@ namespace SocketTcpServer
 
             ConsoleColor[] colors = (ConsoleColor[])ConsoleColor.GetValues(typeof(ConsoleColor));
             Console.BackgroundColor = ConsoleColor.Gray;
-            
+
             Console.Clear();
 
             Console.BufferWidth = 120;
@@ -486,10 +412,10 @@ namespace SocketTcpServer
             var IpPoint = new IPEndPoint(IPAddress.Parse(HostName), port);
 
             // создаем сокет
-            var listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);      
+            var listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             DealCards DealCard = new DealCards();
-            
+
             try
             {
                 // связываем сокет с локальной точкой, по которой будем принимать данные
@@ -509,7 +435,7 @@ namespace SocketTcpServer
 
                     while (playerMoney > 0 && playerTwoMoney > 0)//Цикл саму игру
                     {
-                       
+
 
                         while (true)//Цикл на раунд
                         {
@@ -519,24 +445,24 @@ namespace SocketTcpServer
                             RaiseBlinds();//Поднять блайнды
                             getBlinds();//Взять блайнды с игроков
 
-                            
+
                             //Разобратся с checkfold raise
                             DealCard.DisplayPlayerCard();
                             DealCard.DisplayPlayerTwoCard();
                             //stage 2
                             //SendCards(DealCard.playerHand, player);
                             //SendCards(DealCard.playerTwoHand, playerTwo);
-                            
-                            myWinner = CheckFirstTurn();
+                            CheckFirstTurn();
+                            //myWinner = CheckFirstTurn();
 
-                            if(myWinner == Winner.PlayerTwoWin)//Fold, выигрыш достается второму игроку
+                            if (myWinner == Winner.PlayerTwoWin)//Fold, выигрыш достается второму игроку
                             {
                                 playerTwoMoney += bank;
                                 displayWinner();
                                 ClearData();
                                 break;
                             }
-                            else if(myWinner == Winner.PlayerOneWin)
+                            else if (myWinner == Winner.PlayerOneWin)
                             {
                                 playerMoney += bank;
                                 displayWinner();
@@ -597,7 +523,7 @@ namespace SocketTcpServer
                                 ClearData();
                                 break;
                             }
-                            else if (myWinner == Winner.PlayerTwoWin)
+                            else if (myWinner == Winner.PlayerOneWin)
                             {
                                 playerMoney += bank;
                                 displayWinner();
@@ -605,10 +531,10 @@ namespace SocketTcpServer
                                 break;
                             }
                             //stage 5
-                            ClearLine(30); ClearLine(31); ClearLine(32); ClearLine(33); ClearLine(34); ClearLine(35);
-                            
+                            ClearLine(30, 35);
+
                             Console.SetCursorPosition(0, 30);
-                            
+
                             DealCard.EvaluateHands();//Допилить вывод победителя card[7]
                             Console.WriteLine("Ваш баланс(1):" + playerMoney + "\tВаш баланс(2):" + playerTwoMoney);
                             Console.ReadLine();
@@ -630,9 +556,7 @@ namespace SocketTcpServer
             generalBetPlayerTwo = 0;
             bank = 0;
             ++round;
-            roundContinue = false;
         }
-
 
         public static string ConvertSuit(Card card, string Cards)
         {

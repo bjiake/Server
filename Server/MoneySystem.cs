@@ -15,7 +15,7 @@ namespace SocketTcpServer
         public static int PlayerMoney;
         public static int GeneralBet;
         public static int GeneralEnemyBet;
-        
+
         public static int betPlayer;//То что поставил игрок я ссать
 
         public int ChoosePlayer(int playerMoney, int generalBet, int generalEnemyBet, int smallBlind, int bigBlind)
@@ -26,12 +26,13 @@ namespace SocketTcpServer
 
             SmallBlind = smallBlind;
             BigBlind = bigBlind;
-            
+
             int choosen;
 
             bool trueChoice = true;
-            Console.SetCursorPosition(0, 36);
-            Console.WriteLine("\nВыберите свой ход: Check - 0, Call - 1, Raise - 2, Fold - 3");
+            Console.SetCursorPosition(0, 32);
+            Console.WriteLine("Выберите свой ход: Check - 0, Call - 1, Raise - 2, Fold - 3");
+            Console.SetCursorPosition(0, 33);
             choosen = Convert.ToInt32(Console.ReadLine());
             //1 чел - коллит
             //2 чел рейзит
@@ -49,19 +50,22 @@ namespace SocketTcpServer
                         trueChoice = false;
                         break;
                     case 2:
-                        if(PlayerMoney >= BigBlind)
+                        if (PlayerMoney >= BigBlind)
                         {
                             trueChoice = false;
                             betPlayer = Raise();
                             break;
-                        }     
+                        }
                         break;
                     case 3:
                         betPlayer = Fold();
                         trueChoice = false;
                         break;
                     default:
+                        Program.ClearLine(32, 33);
+                        Console.SetCursorPosition(0, 32);
                         Console.WriteLine("Вы ввели неверное значение выбора");
+                        Console.SetCursorPosition(0, 33);
                         choosen = Convert.ToInt32(Console.ReadLine());
                         break;
                 }
@@ -75,7 +79,7 @@ namespace SocketTcpServer
             Program.MyPlayerMove = Program.PlayersMove.Check;
             if (GeneralBet < GeneralEnemyBet)
             {
-                if(PlayerMoney >= GeneralEnemyBet - betPlayer)
+                if (PlayerMoney >= GeneralEnemyBet - betPlayer)
                 {
                     return (GeneralEnemyBet - GeneralBet);//Если хватает на повышение ставки
                 }
@@ -107,11 +111,13 @@ namespace SocketTcpServer
         public static int Raise()
         {
             Program.MyPlayerMove = Program.PlayersMove.Raise;
+            Console.SetCursorPosition(0, 34);
             Console.WriteLine("На сколько денег Вы хотите повысить ставку?");
             bool choice = false;
             int valueRaise;
             while (!choice)
             {
+                Console.SetCursorPosition(0, 35);
                 valueRaise = Convert.ToInt32(Console.ReadLine());
                 if (valueRaise <= PlayerMoney && valueRaise >= BigBlind)
                 {
@@ -128,7 +134,6 @@ namespace SocketTcpServer
         public static int Fold()
         {
             Program.MyPlayerMove = Program.PlayersMove.Fold;
-            Program.roundContinue = false;
             return 0;
         }
 
